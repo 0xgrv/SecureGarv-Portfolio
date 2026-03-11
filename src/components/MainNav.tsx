@@ -103,7 +103,7 @@ const MainNav = () => {
         <div className="flex items-center gap-4">
           {/* Social Icons - Desktop */}
           <div className="glass px-4 py-2 sm:px-6 sm:py-3 rounded-full items-center gap-4 hidden sm:flex">
-            <a href="https://github.com/Securegarv20" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+            <a href="https://github.com/0xgrv/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
               <Github className="w-5 h-5" />
             </a>
             <a href="https://www.linkedin.com/in/garvkamra/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">

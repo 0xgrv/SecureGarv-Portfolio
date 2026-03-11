@@ -798,51 +798,6 @@ const Index = () => {
               {heroContent.about?.myJourney}
             </div>
           </motion.div>
-
-<motion.div 
-  initial={{ opacity: 0, y: 20 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.5, delay: 0.3 }}
-  className="mt-12 max-w-4xl mx-auto"
->
-  <div className="glass p-6 rounded-xl">
-    <div className="flex flex-col md:flex-row items-center gap-8">
-      <div className="md:w-1/2">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 rounded-lg bg-primary/10">
-            <Shield className="w-5 h-5 text-primary" />
-          </div>
-          <h4 className="text-xl font-bold">Cybersecurity Practice</h4>
-        </div>
-        <p className="text-muted-foreground mb-5 text-base leading-relaxed">
-          Active on TryHackMe completing cybersecurity labs, CTF challenges, and skill development exercises.
-        </p>
-        <a 
-          href="https://tryhackme.com/p/securegarv" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 text-sm text-primary hover:underline font-medium"
-        >
-          View profile
-          <ExternalLink className="w-3 h-3" />
-        </a>
-      </div>
-      <div className="md:w-1/2 flex justify-center mt-9">
-        <iframe 
-          src="https://tryhackme.com/api/v2/badges/public-profile?userPublicId=1986213" 
-          style={{ 
-            border: 'none', 
-            width: '340px', 
-            height: '160px',
-            borderRadius: '8px'
-          }}
-          title="TryHackMe Badges"
-          className="rounded-lg"
-        />
-      </div>
-    </div>
-  </div>
-</motion.div>
           <div className="pt-12 mb-16">
               <motion.h2 
                 className="text-3xl md:text-4xl font-bold text-center mb-8"
