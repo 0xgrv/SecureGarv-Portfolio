@@ -4,14 +4,14 @@ import { useScrollSpy } from '../hooks/useScrollSpy';
 import MobileNav from './MobileNav';
 
 const NAV_LINKS = [
-  { id: 'home',         label: 'Home' },
-  { id: 'about',        label: 'About' },
-  { id: 'education',    label: 'Education' },
-  { id: 'projects',     label: 'Projects' },
-  { id: 'experience',   label: 'Experience' },
-  { id: 'community',    label: 'Community' },
-  { id: 'blog',         label: 'Blog' },
-  { id: 'contact',      label: 'Contact' },
+  { id: 'home', label: 'Home' },
+  { id: 'about', label: 'About' },
+  { id: 'education', label: 'Education' },
+  { id: 'projects', label: 'Projects' },
+  { id: 'experience', label: 'Experience' },
+  { id: 'community', label: 'Community' },
+  { id: 'blog', label: 'Blog' },
+  { id: 'contact', label: 'Contact' },
 ] as const;
 
 const SECTION_IDS = NAV_LINKS.map((l) => l.id);
@@ -37,11 +37,10 @@ const MainNav = () => {
   return (
     <header
       role="banner"
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
           ? 'bg-[rgba(8,12,20,0.9)] backdrop-blur-xl border-b border-white/5 py-3'
           : 'bg-transparent py-5'
-      }`}
+        }`}
     >
       <nav
         aria-label="Primary navigation"
@@ -58,7 +57,7 @@ const MainNav = () => {
                 boxShadow: '0 0 6px rgba(62,207,179,0.6)',
               }}
             />
-            Open to VAPT Engagements
+            Open to Projects
           </div>
 
           {/* Mobile — compact dot */}
@@ -89,11 +88,10 @@ const MainNav = () => {
                 href={`#${id}`}
                 role="listitem"
                 onClick={(e) => scrollToSection(e, id)}
-                className={`relative px-3 py-1.5 text-sm rounded-lg transition-all duration-200 ${
-                  activeId === id
+                className={`relative px-3 py-1.5 text-sm rounded-lg transition-all duration-200 ${activeId === id
                     ? 'text-white font-medium'
                     : 'text-[#687081] hover:text-white'
-                }`}
+                  }`}
                 aria-current={activeId === id ? 'page' : undefined}
               >
                 {label}
