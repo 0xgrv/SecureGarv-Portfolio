@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 interface Skill {
   _id: string;
   name: string;
-  category: string;
+  category?: string; // Made optional since it doesn't exist in backend
   featured?: boolean;
 }
 
@@ -13,7 +13,9 @@ interface MarqueeSkillsProps {
 }
 
 /** Map backend category names to visual classes */
-const getCategoryClass = (category: string): string => {
+const getCategoryClass = (category?: string): string => {
+  if (!category) return 'cat-dev'; // Default fallback for skills without category
+
   const lower = category.toLowerCase();
   if (
     lower.includes('security') ||
@@ -46,24 +48,31 @@ const getDotColor = (cls: string): string => {
 
 const MarqueeSkills = ({ skills }: MarqueeSkillsProps) => {
   const [row1, row2] = useMemo(() => {
-    if (!skills.length) return [[], []];
+    if (!skills || !skills.length) return [[], []];
+
+    // Filter out any skills without name or _id
+    const validSkills = skills.filter(skill => skill && skill._id && skill.name);
+
     // Featured skills go first
     const sorted = [
-      ...skills.filter((s) => s.featured),
-      ...skills.filter((s) => !s.featured),
+      ...validSkills.filter((s) => s.featured),
+      ...validSkills.filter((s) => !s.featured),
     ];
     const mid = Math.ceil(sorted.length / 2);
     return [sorted.slice(0, mid), sorted.slice(mid)];
   }, [skills]);
 
-  if (!skills.length) return null;
+  if (!skills || !skills.length) return null;
 
   const renderPill = (skill: Skill, idx: number) => {
+    // Guard against incomplete skill data
+    if (!skill || !skill.name) return null;
+
     const catCls = getCategoryClass(skill.category);
     const dotColor = getDotColor(catCls);
     return (
       <span
-        key={`${skill._id}-${idx}`}
+        key={`${skill._id || idx}-${idx}`}
         className={`skill-pill ${catCls} ${skill.featured ? 'featured' : ''}`}
         aria-label={skill.name}
       >
