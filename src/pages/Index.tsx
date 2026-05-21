@@ -314,7 +314,7 @@ const Index = () => {
                   variants={fadeUp}
                   className="font-mono text-xs tracking-[4px] uppercase text-[#3ecfb3] mb-6"
                 >
-                  Security Analyst · VAPT · Red Team
+                  Security Analyst · VAPT · Writer
                 </motion.p>
 
                 <motion.h1
