@@ -1,6 +1,5 @@
-// components/FeedbackSection.tsx
 import { useState, useEffect } from 'react';
-import { Star, Quote, MessageCircle, ExternalLink } from 'lucide-react';
+import { Star, Quote, MessageCircle, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Review {
@@ -22,280 +21,245 @@ interface FeedbackSectionProps {
   reviews: Review[];
 }
 
+const StarRating = ({ rating }: { rating: number }) => (
+  <div className="flex gap-0.5" aria-label={`Rating: ${rating} out of 5`}>
+    {[...Array(5)].map((_, i) => (
+      <Star
+        key={i}
+        size={14}
+        aria-hidden="true"
+        className={
+          i < rating
+            ? 'text-amber-400 fill-amber-400'
+            : 'text-[#3d4452]'
+        }
+      />
+    ))}
+  </div>
+);
+
+const EmptyState = () => (
+  <section id="testimonials" aria-labelledby="testimonials-heading" className="py-24 relative overflow-hidden">
+    <div className="container mx-auto px-4 relative z-10">
+      <div className="text-center mb-16">
+        <p className="section-eyebrow">Testimonials</p>
+        <h2 id="testimonials-heading" className="section-heading">
+          Client <span className="text-gradient-primary">Voices</span>
+        </h2>
+      </div>
+      <div className="max-w-md mx-auto text-center glass rounded-2xl p-12">
+        <MessageCircle className="w-12 h-12 text-[#3d4452] mx-auto mb-4" aria-hidden="true" />
+        <h3 className="font-display text-lg font-semibold mb-2 text-[#687081]">No Reviews Yet</h3>
+        <p className="text-sm text-[#3d4452]">
+          Testimonials will appear here once reviews are added.
+        </p>
+      </div>
+    </div>
+  </section>
+);
+
 const FeedbackSection = ({ reviews }: FeedbackSectionProps) => {
-  const [activeReview, setActiveReview] = useState(0);
+  const displayReviews = reviews.filter((r) => r.isActive);
+  const [activeIndex, setActiveIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
-  // Filter only active reviews for display
-  const displayReviews = reviews.filter(review => 
-    review.isActive
-  );
-
-  // ADD THESE CONSOLE LOGS:
-  // console.log('All reviews:', reviews);
-  // console.log('Display reviews (active & featured):', displayReviews);
-  // console.log('Review featured status:', reviews[0]?.featured);
-
-  // Auto-scroll functionality
   useEffect(() => {
-    if (!isAutoPlaying || displayReviews.length === 0) return;
-
-    const interval = setInterval(() => {
-      setActiveReview((prev) => (prev + 1) % displayReviews.length);
-    }, 5000);
-
-    return () => clearInterval(interval);
+    if (!isAutoPlaying || displayReviews.length <= 1) return;
+    const timer = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % displayReviews.length);
+    }, 6000);
+    return () => clearInterval(timer);
   }, [isAutoPlaying, displayReviews.length]);
 
-  const nextReview = () => {
-    if (displayReviews.length === 0) return;
+  const pauseAndGo = (next: number) => {
     setIsAutoPlaying(false);
-    setActiveReview((prev) => (prev + 1) % displayReviews.length);
-    setTimeout(() => setIsAutoPlaying(true), 10000);
+    setActiveIndex((prev) => {
+      const total = displayReviews.length;
+      return ((prev + next) % total + total) % total;
+    });
+    setTimeout(() => setIsAutoPlaying(true), 12000);
   };
 
-  const prevReview = () => {
-    if (displayReviews.length === 0) return;
-    setIsAutoPlaying(false);
-    setActiveReview((prev) => (prev - 1 + displayReviews.length) % displayReviews.length);
-    setTimeout(() => setIsAutoPlaying(true), 10000);
-  };
+  if (displayReviews.length === 0) return <EmptyState />;
 
-  const goToReview = (index: number) => {
-    if (displayReviews.length === 0) return;
-    setIsAutoPlaying(false);
-    setActiveReview(index);
-    setTimeout(() => setIsAutoPlaying(true), 10000);
-  };
-
-  const StarRating = ({ rating }: { rating: number }) => {
-    return (
-      <div className="flex gap-1">
-        {[...Array(5)].map((_, i) => (
-          <Star
-            key={i}
-            size={16}
-            className={`${
-              i < rating 
-                ? 'text-yellow-400 fill-yellow-400' 
-                : 'text-gray-400 dark:text-gray-600'
-            } transition-all duration-300`}
-          />
-        ))}
-      </div>
-    );
-  };
-
-  if (displayReviews.length === 0) {
-    return (
-      <section id="testimonials" className="py-20 relative overflow-hidden">
-        {/* Background Elements */}
-        <div className="absolute inset-0">
-          <div className="absolute top-1/4 -left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-1/4 -right-10 w-72 h-72 bg-[#6E59A5]/10 rounded-full blur-3xl"></div>
-          <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/40 to-background"></div>
-        </div>
-
-        <div className="container mx-auto px-4 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-              Client <span className="text-gradient-primary">Testimonials</span>
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-              What clients say about my web development services and project delivery
-            </p>
-          </motion.div>
-
-          {/* Empty State */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="max-w-2xl mx-auto text-center"
-          >
-            <div className="glass p-12 rounded-2xl">
-              <MessageCircle className="w-16 h-16 text-muted-foreground mx-auto mb-6" />
-              <h3 className="text-2xl font-semibold text-foreground mb-4">
-                No Reviews Yet
-              </h3>
-              <p className="text-muted-foreground text-lg mb-6">
-                Client Testimonials will appear here once reviews are added.
-              </p>
-              <div className="flex justify-center space-x-4 text-sm text-muted-foreground">
-                <div className="flex items-center space-x-2">
-                  <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                  <span>Client Ratings</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Quote className="w-4 h-4 text-primary" />
-                  <span>Testimonials</span>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-    );
-  }
+  const current = displayReviews[activeIndex];
+  const featuredCount = displayReviews.filter((r) => r.featured).length;
 
   return (
-    <section id="testimonials" className="py-20 relative overflow-hidden">
-      {/* Background Elements */}
-      <div className="absolute inset-0">
-        <div className="absolute top-1/4 -left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-1/4 -right-10 w-72 h-72 bg-[#6E59A5]/10 rounded-full blur-3xl"></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/40 to-background"></div>
+    <section
+      id="testimonials"
+      aria-labelledby="testimonials-heading"
+      className="py-24 relative overflow-hidden"
+    >
+      {/* Ambient blobs */}
+      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+        <div className="absolute top-1/4 -left-16 w-72 h-72 rounded-full bg-[#7c6af7]/8 blur-[100px]" />
+        <div className="absolute bottom-1/4 -right-16 w-72 h-72 rounded-full bg-[#3ecfb3]/6 blur-[100px]" />
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-            Client <span className="text-gradient-primary">Testimonials</span>
+          <p className="section-eyebrow justify-center">Testimonials</p>
+          <h2 id="testimonials-heading" className="section-heading mb-4">
+            Client <span className="text-gradient-primary">Voices</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            What clients say about my web development services and project delivery
+          <p className="text-[#687081] text-sm max-w-md mx-auto">
+            Feedback from clients and collaborators.
           </p>
         </motion.div>
 
-        {/* Main Testimonial Card */}
-        <div className="max-w-4xl mx-auto">
-          <div className="relative">
-            {/* Navigation Arrows */}
-            <button
-              onClick={prevReview}
-              disabled={displayReviews.length <= 1}
-              className="absolute -left-4 md:-left-12 top-1/2 transform -translate-y-1/2 glass p-3 rounded-full hover-glow transition-all duration-300 hover:scale-110 z-20 border border-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-label="Previous testimonial"
+        {/* Stats strip */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="flex flex-wrap justify-center gap-6 mb-14"
+        >
+          {[
+            { value: `${displayReviews.length}+`, label: 'Reviews' },
+            { value: featuredCount > 0 ? `${featuredCount}` : '—', label: 'Featured' },
+            {
+              value: displayReviews.length > 0
+                ? `${(
+                    displayReviews.reduce((s, r) => s + r.rating, 0) /
+                    displayReviews.length
+                  ).toFixed(1)}`
+                : '—',
+              label: 'Avg Rating',
+            },
+          ].map(({ value, label }) => (
+            <div
+              key={label}
+              className="glass px-6 py-3 rounded-xl text-center"
             >
-              <svg className="w-5 h-5 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
+              <div className="font-display text-xl font-bold text-white">{value}</div>
+              <div className="text-xs text-[#687081] font-mono uppercase tracking-wider mt-0.5">{label}</div>
+            </div>
+          ))}
+        </motion.div>
 
-            <button
-              onClick={nextReview}
-              disabled={displayReviews.length <= 1}
-              className="absolute -right-4 md:-right-12 top-1/2 transform -translate-y-1/2 glass p-3 rounded-full hover-glow transition-all duration-300 hover:scale-110 z-20 border border-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-label="Next testimonial"
-            >
-              <svg className="w-5 h-5 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-
-            {/* Testimonial Content */}
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeReview}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-                className="glass p-8 md:p-12 rounded-2xl relative overflow-hidden"
+        {/* Carousel */}
+        <div className="max-w-3xl mx-auto relative">
+          {/* Arrows */}
+          {displayReviews.length > 1 && (
+            <>
+              <button
+                onClick={() => pauseAndGo(-1)}
+                aria-label="Previous testimonial"
+                className="absolute -left-5 md:-left-14 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full glass border border-white/8 flex items-center justify-center text-[#687081] hover:text-white hover:border-white/20 transition-all"
               >
-                {/* Auto-play indicator */}
-                <div className="absolute top-4 left-4 flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full ${isAutoPlaying ? 'bg-green-400' : 'bg-gray-400'}`}></div>
-                  <span className="text-xs text-muted-foreground">
-                    {isAutoPlaying ? 'Auto' : 'Paused'}
-                  </span>
-                </div>
+                <ChevronLeft className="w-5 h-5" aria-hidden="true" />
+              </button>
+              <button
+                onClick={() => pauseAndGo(1)}
+                aria-label="Next testimonial"
+                className="absolute -right-5 md:-right-14 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full glass border border-white/8 flex items-center justify-center text-[#687081] hover:text-white hover:border-white/20 transition-all"
+              >
+                <ChevronRight className="w-5 h-5" aria-hidden="true" />
+              </button>
+            </>
+          )}
 
-                {/* Background Pattern */}
-                <div className="absolute top-0 right-0 w-32 h-32 opacity-5">
-                  <Quote size={128} className="text-primary" />
-                </div>
+          {/* Card */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeIndex}
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -24 }}
+              transition={{ duration: 0.3 }}
+              className="glass rounded-2xl p-8 md:p-12 relative overflow-hidden"
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              {/* Large quote mark decoration */}
+              <Quote
+                className="absolute top-6 right-8 w-16 h-16 text-[#7c6af7]/8 rotate-180"
+                aria-hidden="true"
+              />
 
-                <div className="relative z-10">
-                  {/* Rating and Project Type */}
-                  <div className="flex items-center justify-between mb-6">
-                    <StarRating rating={displayReviews[activeReview].rating} />
-                    <div className="flex items-center gap-2">
-                      {displayReviews[activeReview].featured && (
-                        <span className="text-xs px-2 py-1 bg-yellow-400/20 text-yellow-600 dark:text-yellow-400 border border-yellow-400/30 rounded-full font-medium">
-                          ⭐ Featured
-                        </span>
-                      )}
-                      <span className="text-sm text-primary font-medium bg-primary/10 px-3 py-1 rounded-full">
-                        {displayReviews[activeReview].projectType}
+              <div className="relative z-10">
+                {/* Rating + type */}
+                <div className="flex items-center justify-between mb-6">
+                  <StarRating rating={current.rating} />
+                  <div className="flex items-center gap-2">
+                    {current.featured && (
+                      <span className="text-xs font-mono px-2.5 py-1 rounded-full border border-amber-500/25 text-amber-400 bg-amber-500/8">
+                        Featured
                       </span>
-                    </div>
-                  </div>
-
-                  {/* Testimonial Text */}
-                  <blockquote className="mb-8">
-                    <p className="text-lg md:text-xl text-foreground/90 leading-relaxed font-light">
-                      "{displayReviews[activeReview].text}"
-                    </p>
-                  </blockquote>
-
-                  {/* Client Info */}
-                  <div className="pt-6 border-t border-white/10">
-                    <h4 className="font-semibold text-foreground text-lg mb-1">
-                      {displayReviews[activeReview].name}
-                    </h4>
-                    <p className="text-primary font-medium">
-                      {displayReviews[activeReview].position}
-                    </p>
-                    {displayReviews[activeReview].company && (
-                      <p className="text-muted-foreground">
-                        {displayReviews[activeReview].company}
-                      </p>
                     )}
-                    {/* Add Website Button */}
-                    {displayReviews[activeReview].websiteUrl && (
-                      <a
-                        href={displayReviews[activeReview].websiteUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 mt-3 px-4 py-2 glass rounded-lg hover-glow transition-all duration-300 text-sm"
-                      >
-                        <ExternalLink size={14} />
-                        View Project
-                      </a>
-                    )}
+                    <span className="text-xs font-mono px-2.5 py-1 rounded-full border border-[rgba(124,106,247,0.2)] text-[#7c6af7] bg-[rgba(124,106,247,0.06)]">
+                      {current.projectType}
+                    </span>
                   </div>
                 </div>
-              </motion.div>
-            </AnimatePresence>
 
-            {/* Indicators */}
-            {displayReviews.length > 1 && (
-              <div className="flex justify-center mt-8 gap-2">
-                {displayReviews.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => goToReview(index)}
-                    className={`w-2 h-2 rounded-full transition-all duration-300 relative ${
-                      index === activeReview
-                        ? 'bg-primary w-6'
-                        : 'bg-gray-300 dark:bg-gray-600 hover:bg-primary/60'
-                    }`}
-                  >
-                    {/* Progress bar for auto-scroll */}
-                    {index === activeReview && isAutoPlaying && (
-                      <motion.div
-                        className="absolute top-0 left-0 h-full bg-primary/30 rounded-full"
-                        initial={{ width: '0%' }}
-                        animate={{ width: '100%' }}
-                        transition={{ duration: 5, ease: 'linear' }}
-                      />
-                    )}
-                  </button>
-                ))}
+                {/* Quote text */}
+                <blockquote className="mb-8">
+                  <p className="text-base md:text-lg text-white/85 leading-relaxed font-light italic">
+                    &ldquo;{current.text}&rdquo;
+                  </p>
+                </blockquote>
+
+                {/* Author */}
+                <div className="pt-6 border-t border-white/6">
+                  <p className="font-display font-semibold text-white">{current.name}</p>
+                  <p className="text-sm text-[#7c6af7] mt-0.5">{current.position}</p>
+                  {current.company && (
+                    <p className="text-sm text-[#687081] mt-0.5">{current.company}</p>
+                  )}
+                  {current.websiteUrl && (
+                    <a
+                      href={current.websiteUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`View ${current.name}'s project`}
+                      className="inline-flex items-center gap-1.5 mt-3 text-xs font-mono text-[#687081] hover:text-white transition-colors"
+                    >
+                      <ExternalLink className="w-3 h-3" aria-hidden="true" />
+                      View Project
+                    </a>
+                  )}
+                </div>
               </div>
-            )}
-          </div>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Indicators */}
+          {displayReviews.length > 1 && (
+            <div
+              className="flex justify-center gap-1.5 mt-8"
+              role="tablist"
+              aria-label="Testimonial navigation"
+            >
+              {displayReviews.map((_, i) => (
+                <button
+                  key={i}
+                  role="tab"
+                  aria-selected={i === activeIndex}
+                  aria-label={`Go to testimonial ${i + 1}`}
+                  onClick={() => {
+                    setIsAutoPlaying(false);
+                    setActiveIndex(i);
+                    setTimeout(() => setIsAutoPlaying(true), 12000);
+                  }}
+                  className={`rounded-full transition-all duration-300 ${
+                    i === activeIndex
+                      ? 'w-6 h-1.5 bg-[#7c6af7]'
+                      : 'w-1.5 h-1.5 bg-[#3d4452] hover:bg-[#687081]'
+                  }`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </section>

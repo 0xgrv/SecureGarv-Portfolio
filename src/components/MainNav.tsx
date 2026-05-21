@@ -1,128 +1,162 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { Github, Mail, Linkedin, LibraryBig } from 'lucide-react';
-import MobileNav from "./MobileNav";
+import { useScrollSpy } from '../hooks/useScrollSpy';
+import MobileNav from './MobileNav';
+
+const NAV_LINKS = [
+  { id: 'home',         label: 'Home' },
+  { id: 'about',        label: 'About' },
+  { id: 'education',    label: 'Education' },
+  { id: 'projects',     label: 'Projects' },
+  { id: 'experience',   label: 'Experience' },
+  { id: 'community',    label: 'Community' },
+  { id: 'blog',         label: 'Blog' },
+  { id: 'contact',      label: 'Contact' },
+] as const;
+
+const SECTION_IDS = NAV_LINKS.map((l) => l.id);
 
 const MainNav = () => {
-  const [showAvailability, setShowAvailability] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  
-  // Handle scroll effect for navbar
+  const activeId = useScrollSpy(SECTION_IDS);
+
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY;
-      setIsScrolled(scrollPosition > 20);
-    };
-    
-    window.addEventListener('scroll', handleScroll);
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
+    const onScroll = () => setIsScrolled(window.scrollY > 24);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const toggleAvailability = () => {
-    setShowAvailability(!showAvailability);
-    // Hide the message after 3 seconds
-    if (!showAvailability) {
-      setTimeout(() => setShowAvailability(false), 3000);
-    }
-  };
-  
-  // Smooth scroll handler for anchor links
-  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+  const scrollToSection = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    id: string,
+  ) => {
     e.preventDefault();
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
-  
+
   return (
-    <header className={`fixed top-2 w-full z-50 transition-all duration-300 ${isScrolled ? 'py-2' : 'py-4'}`}>
-      <nav className="container mx-auto px-4 flex justify-between items-center">
-        {/* Left Section - Availability Status */}
+    <header
+      role="banner"
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled
+          ? 'bg-[rgba(8,12,20,0.9)] backdrop-blur-xl border-b border-white/5 py-3'
+          : 'bg-transparent py-5'
+      }`}
+    >
+      <nav
+        aria-label="Primary navigation"
+        className="container mx-auto px-4 flex items-center justify-between"
+      >
+        {/* Left — availability badge */}
         <div className="flex items-center">
-          <div className="hidden sm:flex glass px-4 py-2 sm:px-6 sm:py-3 rounded-full items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-            <span className="text-sm sm:text-base">Available for Projects</span>
+          {/* Desktop */}
+          <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full border border-[rgba(62,207,179,0.2)] bg-[rgba(62,207,179,0.04)] text-sm font-mono text-[#3ecfb3]">
+            <span
+              className="w-1.5 h-1.5 rounded-full bg-[#3ecfb3] inline-block"
+              style={{
+                animation: 'pulse-ring-sm 2s ease-in-out infinite',
+                boxShadow: '0 0 6px rgba(62,207,179,0.6)',
+              }}
+            />
+            Open to VAPT Engagements
           </div>
-          
-          {/* Mobile Version - Just the dot */}
+
+          {/* Mobile — compact dot */}
           <div className="sm:hidden">
-            <button 
-              onClick={toggleAvailability}
-              className="relative flex items-center justify-center"
-              aria-label="Availability status"
+            <span
+              aria-label="Available for projects"
+              className="block w-2.5 h-2.5 rounded-full bg-[#3ecfb3]"
+              style={{ boxShadow: '0 0 8px rgba(62,207,179,0.7)' }}
+            />
+          </div>
+        </div>
+
+        {/* Centre — logo + nav links */}
+        <div className="hidden lg:flex items-center gap-8 px-7 py-3 rounded-full glass">
+          <a
+            href="#home"
+            onClick={(e) => scrollToSection(e, 'home')}
+            className="font-mono font-bold text-base tracking-tight text-white hover:text-[#7c6af7] transition-colors"
+            aria-label="SecureGarv — go to home"
+          >
+            <span className="text-[#7c6af7]">.</span>SecureGarv
+          </a>
+
+          <div className="flex items-center gap-1" role="list">
+            {NAV_LINKS.map(({ id, label }) => (
+              <a
+                key={id}
+                href={`#${id}`}
+                role="listitem"
+                onClick={(e) => scrollToSection(e, id)}
+                className={`relative px-3 py-1.5 text-sm rounded-lg transition-all duration-200 ${
+                  activeId === id
+                    ? 'text-white font-medium'
+                    : 'text-[#687081] hover:text-white'
+                }`}
+                aria-current={activeId === id ? 'page' : undefined}
+              >
+                {label}
+                {activeId === id && (
+                  <span className="absolute inset-x-3 -bottom-px h-px bg-[#7c6af7] rounded-full" />
+                )}
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* Right — socials + mobile menu */}
+        <div className="flex items-center gap-3">
+          <div className="hidden sm:flex items-center gap-4 px-5 py-2.5 rounded-full glass">
+            <a
+              href="https://github.com/0xgrv/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="GitHub profile"
+              className="text-[#687081] hover:text-white transition-colors"
             >
-              <div className="w-4 h-4 rounded-full bg-green-500 animate-pulse"></div>
-              {showAvailability && (
-                <div className="absolute top-full left-0 mt-2 glass px-4 py-2 rounded-lg whitespace-nowrap z-50">
-                  Available for Projects
-                </div>
-              )}
-            </button>
-          </div>
-        </div>
-        
-        {/* Middle Section - Logo and Navigation Links in one row */}
-        <div className="glass px-6 py-3 rounded-full hidden lg:flex items-center gap-8">
-          {/* Logo */}
-          <a href="#home" className="text-lg font-bold" onClick={(e) => scrollToSection(e, 'home')}>.SecureGarv</a>
-          
-          {/* Navigation Links - All in one row */}
-          <div className="flex items-center gap-6">
-            <a href="#home" className="hover:text-primary transition-colors" onClick={(e) => scrollToSection(e, 'home')}>
-              Home
+              <Github className="w-4 h-4" aria-hidden="true" />
             </a>
-            <a href="#about" className="hover:text-primary transition-colors" onClick={(e) => scrollToSection(e, 'about')}>
-              About
+            <a
+              href="https://www.linkedin.com/in/garvkamra/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="LinkedIn profile"
+              className="text-[#687081] hover:text-white transition-colors"
+            >
+              <Linkedin className="w-4 h-4" aria-hidden="true" />
             </a>
-            <a href="#education" className="hover:text-primary transition-colors" onClick={(e) => scrollToSection(e, 'education')}>
-              Education
+            <a
+              href="https://www.amazon.in/stores/Garv-Kamra/author/B0FJWL3F7D/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Amazon author page"
+              className="text-[#687081] hover:text-white transition-colors"
+            >
+              <LibraryBig className="w-4 h-4" aria-hidden="true" />
             </a>
-            <a href="#projects" className="hover:text-primary transition-colors" onClick={(e) => scrollToSection(e, 'projects')}>
-              Projects
-            </a>
-            <a href="#experience" className="hover:text-primary transition-colors" onClick={(e) => scrollToSection(e, 'experience')}>
-              Experience
-            </a>
-            <a href="#blog" className="hover:text-primary transition-colors" onClick={(e) => scrollToSection(e, 'blog')}>
-              Blogs
-            </a>
-            <a href="#testimonials" className="hover:text-primary transition-colors" onClick={(e) => scrollToSection(e, 'testimonials')}>
-              Testimonials
-            </a>
-            <a href="#contact" className="hover:text-primary transition-colors" onClick={(e) => scrollToSection(e, 'contact')}>
-              Contact
+            <a
+              href="mailto:securegarv@gmail.com"
+              aria-label="Send email"
+              className="text-[#687081] hover:text-white transition-colors"
+            >
+              <Mail className="w-4 h-4" aria-hidden="true" />
             </a>
           </div>
-        </div>
-        
-        {/* Right Section - Social Icons and Mobile Menu */}
-        <div className="flex items-center gap-4">
-          {/* Social Icons - Desktop */}
-          <div className="glass px-4 py-2 sm:px-6 sm:py-3 rounded-full items-center gap-4 hidden sm:flex">
-            <a href="https://github.com/0xgrv/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
-              <Github className="w-5 h-5" />
-            </a>
-            <a href="https://www.linkedin.com/in/garvkamra/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
-              <Linkedin className="w-5 h-5" />
-            </a>
-            <a href="https://www.amazon.in/stores/Garv-Kamra/author/B0FJWL3F7D/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
-              <LibraryBig className="w-5 h-5" />
-            </a>
-            <a href="mailto:garvkamra24@gmail.com" className="hover:text-primary transition-colors">
-              <Mail className="w-5 h-5" />
-            </a>
-          </div>
-          
-          {/* Mobile Menu Button - Moved to the left of social icons container */}
-          <div className="lg:hidden ml-auto">
+
+          <div className="lg:hidden">
             <MobileNav scrollToSection={scrollToSection} />
           </div>
         </div>
       </nav>
+
+      {/* Inline keyframe for pulse dot — avoids adding to global CSS */}
+      <style>{`
+        @keyframes pulse-ring-sm {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+      `}</style>
     </header>
   );
 };

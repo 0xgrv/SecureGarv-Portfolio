@@ -1,1379 +1,1404 @@
-import { useRef, useState, useEffect, useMemo } from "react";
+import { useRef, useState, useMemo, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { TypeAnimation } from 'react-type-animation';
-import { ArrowRight, Shield, Code, GraduationCap, User, Brain, Rocket, Briefcase, Mail, Github, Linkedin, ExternalLink } from "lucide-react";
-import { motion } from "framer-motion";
-import BlogCard from "../components/BlogCard";
-import BlogModal from "../components/BlogModal";
-import MainNav from "../components/MainNav";
-import MarqueeSkills from "../components/MarqueeSkills";
-import ProjectCard from "../components/ProjectCard";
-import ExperienceCard from "../components/ExperienceCard";
-import EducationCard from "../components/EducationCard";
-import FilterButton from "../components/FilterButton";
-import FeedbackSection from "../components/FeedbackSection";
-
-// API configuration - Update with your backend URL
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-
-/**
- * Types for our content structure
- */
-interface HeroContent {
-  typewriterTexts: string[];
-  heroParagraph: string;
-  resume: {
-    url: string;
-    fileName: string;
-  };
-  about?: {
-    whoIAm: string;
-    myExpertise: string;
-    myMission: string;
-    myJourney: string;
-  };
-}
-
-interface EducationItem {
-  id: string;
-  type: 'education' | 'certification' | 'achievement' | 'publication';
-  institution: string;
-  degree: string;
-  period: string;
-  description: string;
-  certificateLink?: string;
-}
-
-interface Project {
-  _id: string;
-  title: string;
-  description: string;
-  technologies: string[];
-  liveUrl: string;
-  githubUrl: string;
-  image: string;
-  category: string;
-}
-
-interface Experience {
-  _id: string;
-  company: string;
-  position: string;
-  location: string;
-  startDate: string;
-  endDate: string;
-  description: string;
-  achievements: string[];
-  technologies: string[];
-  isCurrentJob: boolean;
-}
-
-interface Skill {
-  _id: string;
-  name: string;
-  category: string;
-  iconUrl?: string;
-  proficiency: number;
-  featured?: boolean;
-}
-
-interface BlogPost {
-  _id: string;
-  title: string;
-  excerpt: string;
-  content: string;
-  date: string;
-  readTime: string;
-  image: string;
-  tags: string[];
-}
-
-interface Review {
-  _id: string;
-  name: string;
-  position: string;
-  company?: string;
-  rating: number;
-  text: string;
-  projectType: string;
-  isActive: boolean;
-  featured: boolean;
-  order: number;
-  createdAt: string;
-  websiteUrl?: string;
-}
-
-
-
-const Index = () => {
-
- return (
-  <div className="min-h-screen flex items-center justify-center bg-background px-6">
-
-    <div className="glass p-10 rounded-xl max-w-xl w-full text-center">
-
-      <motion.h1
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="text-3xl font-bold mb-6 text-gradient-primary"
-      >
-        Rebuilding This Space
-      </motion.h1>
-
-      {/* Terminal style animation */}
-      <div className="font-mono text-left bg-black/40 rounded-lg p-6 mb-6 text-sm whitespace-pre-line">
-        <TypeAnimation
-          sequence={[
-            "Initializing rebuild...",
-            1000,
-            "Initializing rebuild...\nLoading new projects...",
-            1000,
-            "Initializing rebuild...\nLoading new projects...\nDeploying portfolio v2...",
-            2000,
-          ]}
-          speed={60}
-          repeat={Infinity}
-        />
-      </div>
-
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1 }}
-        className="text-muted-foreground mb-8"
-      >
-        I'm experimenting with new ideas and rebuilding this space.
-        <br />
-        It'll be back shortly with some cool updates.
-      </motion.p>
-
-      <div className="flex justify-center gap-4">
-        <a
-          href="https://github.com/0xgrv"
-          target="_blank"
-          className="px-6 py-3 bg-primary text-white rounded-lg hover-glow"
-        >
-          GitHub
-        </a>
-
-        <a
-          href="https://www.linkedin.com/in/garvkamra/"
-          target="_blank"
-          className="px-6 py-3 glass rounded-lg"
-        >
-          LinkedIn
-        </a>
-      </div>
-
-    </div>
-
-  </div>
-);
-
-//   const location = useLocation();
-//   const blogSectionRef = useRef<HTMLDivElement>(null);
-
-//   // Refs for mouse effects
-//   const observerRef = useRef<IntersectionObserver | null>(null);
-//   const gridRef = useRef<HTMLDivElement>(null);
-//   const glowRef = useRef<HTMLDivElement>(null);
-
-//   // Mouse effects state
-//   const [mouseActive, setMouseActive] = useState(false);
-//   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-
-//   // Education filter state
-//   const [activeFilter, setActiveFilter] = useState<'all' | 'education' | 'certification' | 'achievement' | 'publication'>('all');
-
-//   // Contact form state
-//   const [isSending, setIsSending] = useState(false);
-//   const [formData, setFormData] = useState({
-//     name: '',
-//     email: '',
-//     subject: '', // Add subject field
-//     message: ''
-//   });
-
-//   // Data states
-//   const [heroContent, setHeroContent] = useState<HeroContent>({
-//     typewriterTexts: [],
-//     heroParagraph: '',
-//     resume: { url: '', fileName: '' }
-//   });
-
-  
-//   const [education, setEducation] = useState<EducationItem[]>([]);
-//   const [projects, setProjects] = useState<Project[]>([]);
-//   const [experiences, setExperiences] = useState<Experience[]>([]);
-//   const [skills, setSkills] = useState<Skill[]>([]);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState<string | null>(null);
-
-//   // Blog modal state
-//   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
-//   const [selectedBlog, setSelectedBlog] = useState<BlogPost | null>(null);
-//   const [isBlogModalOpen, setIsBlogModalOpen] = useState(false);
-
-//   const [reviews, setReviews] = useState<Review[]>([]);
-//   // ========================
-//   // DATA FETCHING
-//   // ========================
-//   useEffect(() => {
-//     const fetchData = async () => {
-//       try {
-//         setLoading(true);
-//         setError(null);
-
-//         // Fetch all data in parallel
-//         const [contentRes, educationRes, projectsRes, experienceRes, skillsRes, blogRes, reviewsRes] = await Promise.all([
-//           fetch(`${API_URL}/api/content`),
-//           fetch(`${API_URL}/api/education`),
-//           fetch(`${API_URL}/api/projects`),
-//           fetch(`${API_URL}/api/experience`),
-//           fetch(`${API_URL}/api/skills`),
-//           fetch(`${API_URL}/api/blog`),
-//           fetch(`${API_URL}/api/reviews`)
-//         ]);
-
-//         // Check if all responses are OK
-//         if (!contentRes.ok) throw new Error('Failed to fetch content');
-//         if (!educationRes.ok) throw new Error('Failed to fetch education');
-//         if (!projectsRes.ok) throw new Error('Failed to fetch projects');
-//         if (!experienceRes.ok) throw new Error('Failed to fetch experience');
-//         if (!skillsRes.ok) throw new Error('Failed to fetch skills');
-//         if (!blogRes.ok) throw new Error('Failed to fetch blog posts');
-//         if (!reviewsRes.ok) throw new Error('Failed to fetch reviews');
-
-//         // Parse all responses
-//         const [content, education, projects, experience, skills, blogData, reviewsData] = await Promise.all([
-//           contentRes.json(),
-//           educationRes.json(),
-//           projectsRes.json(),
-//           experienceRes.json(),
-//           skillsRes.json(),
-//           blogRes.json(),
-//           reviewsRes.json()
-//         ]);
-
-//         // Set data from API
-//         setHeroContent(content);
-//         setEducation(education);
-//         setProjects(projects);
-//         setExperiences(experience);
-//         setSkills(skills);
-//         setReviews(reviewsData.reviews || []);
-        
-//         // Handle blog data format (could be array or object with posts property)
-//         if (Array.isArray(blogData)) {
-//           setBlogPosts(blogData);
-//         } else if (blogData && Array.isArray(blogData.posts)) {
-//           setBlogPosts(blogData.posts);
-//         } else {
-//           console.warn('Unexpected blog data format:', blogData);
-//           setBlogPosts([]);
-//         }
-
-//       } catch (err) {
-//         console.error('Error fetching data:', err);
-//         setError('Failed to load data. Please check your connection and try again.');
-        
-//         // Set empty states instead of dummy data
-//         setHeroContent({
-//           typewriterTexts: [],
-//           heroParagraph: '',
-//           resume: { url: '', fileName: '' },
-//           about: {
-//             whoIAm: '',
-//             myExpertise: '',
-//             myMission: '',
-//             myJourney: ''
-//           }
-//         });
-//         setEducation([]);
-//         setProjects([]);
-//         setExperiences([]);
-//         setSkills([]);
-//         setBlogPosts([]);
-//         setReviews([]);
-        
-//       } finally {
-//         setLoading(false);
-//       }
-        
-//     };
-//     fetchData();
-//   }, []);
-
-//   // ========================
-//   // SCROLL TO BLOG SECTION
-//   // ========================
-//   useEffect(() => {
-//     if (location.state?.scrollToBlog && blogSectionRef.current) {
-//       blogSectionRef.current.scrollIntoView({ behavior: 'smooth' });
-//       // Clear the state to prevent scrolling on every render
-//       window.history.replaceState({}, document.title);
-//     }
-//   }, [location.state]);
-
-//   // Generate typewriter animation sequence
-//   const typeAnimationSequence = useMemo(() => {
-//     return heroContent.typewriterTexts.flatMap(text => [text, 2000]);
-//   }, [heroContent.typewriterTexts]);
-
-//   // Count education items by type
-//   const counts = {
-//     all: education.length,
-//     education: education.filter(item => item.type === 'education').length,
-//     certification: education.filter(item => item.type === 'certification').length,
-//     achievement: education.filter(item => item.type === 'achievement').length,
-//     publication: education.filter(item => item.type === 'publication').length
-//   };
-
-//   // Filter education items
-//   const filteredEducation = activeFilter === 'all' 
-//     ? education 
-//     : education.filter(item => item.type === activeFilter);
-
-//    // ========================
-//   // MOUSE EFFECTS
-//   // ========================
-//   useEffect(() => {
-//     const gridContainer = gridRef.current;
-//     const glowElement = glowRef.current;
-    
-//     if (!gridContainer || !glowElement) return;
-    
-//     const createGridPoints = () => {
-//       const gridPointsContainer = document.createElement('div');
-//       gridPointsContainer.className = 'grid-points';
-//       gridContainer.appendChild(gridPointsContainer);
-      
-//       const containerWidth = gridContainer.offsetWidth;
-//       const containerHeight = gridContainer.offsetHeight;
-      
-//       const cols = Math.floor(containerWidth / 40);
-//       const rows = Math.floor(containerHeight / 40);
-      
-//       for (let i = 0; i <= cols; i++) {
-//         for (let j = 0; j <= rows; j++) {
-//           const point = document.createElement('div');
-//           point.className = 'grid-point';
-//           point.style.left = `${i * 40}px`;
-//           point.style.top = `${j * 40}px`;
-//           point.style.opacity = (Math.random() * 0.5 + 0.1).toString();
-//           gridPointsContainer.appendChild(point);
-//         }
-//       }
-//     };
-    
-//     createGridPoints();
-    
-//     const handleMouseMove = (e: MouseEvent) => {
-//       if (!gridContainer || !glowElement) return;
-      
-//       const rect = gridContainer.getBoundingClientRect();
-//       const x = e.clientX - rect.left;
-//       const y = e.clientY - rect.top;
-      
-//       setMousePosition({ x, y });
-      
-//       glowElement.style.left = `${x}px`;
-//       glowElement.style.top = `${y}px`;
-//       glowElement.style.opacity = '1';
-//       glowElement.style.transition = 'opacity 0.5s ease, transform 0.3s ease';
-      
-//       const points = document.querySelectorAll('.grid-point');
-//       points.forEach((point) => {
-//         const pointRect = (point as HTMLElement).getBoundingClientRect();
-//         const pointX = pointRect.left - rect.left + pointRect.width / 2;
-//         const pointY = pointRect.top - rect.top + pointRect.height / 2;
-        
-//         const distance = Math.sqrt(Math.pow(pointX - x, 2) + Math.pow(pointY - y, 2));
-//         const maxDistance = 200;
-        
-//         if (distance < maxDistance) {
-//           const intensity = 1 - (distance / maxDistance);
-//           (point as HTMLElement).style.opacity = Math.min(0.1 + intensity * 0.9, 1).toString();
-//           (point as HTMLElement).style.transform = `scale(${1 + intensity * 0.6})`;
-//           (point as HTMLElement).style.filter = `blur(${Math.max(0, 0.5 - intensity)}px)`;
-//         } else {
-//           (point as HTMLElement).style.opacity = "0.1";
-//           (point as HTMLElement).style.transform = "scale(1)";
-//           (point as HTMLElement).style.filter = "blur(0.5px)";
-//         }
-//       });
-      
-//       setMouseActive(true);
-//     };
-    
-//     const handleMouseLeave = () => {
-//       if (!glowElement) return;
-//       glowElement.style.opacity = '0';
-      
-//       const points = document.querySelectorAll('.grid-point');
-//       points.forEach((point) => {
-//         (point as HTMLElement).style.opacity = (Math.random() * 0.2 + 0.1).toString();
-//         (point as HTMLElement).style.transform = "scale(1)";
-//         (point as HTMLElement).style.filter = "blur(0.5px)";
-//       });
-      
-//       setMouseActive(false);
-//     };
-    
-//     gridContainer.addEventListener('mousemove', handleMouseMove);
-//     gridContainer.addEventListener('mouseleave', handleMouseLeave);
-    
-//     return () => {
-//       gridContainer.removeEventListener('mousemove', handleMouseMove);
-//       gridContainer.addEventListener('mouseleave', handleMouseLeave);
-      
-//       const gridPointsContainer = gridContainer.querySelector('.grid-points');
-//       if (gridPointsContainer) {
-//         gridContainer.removeChild(gridPointsContainer);
-//       }
-//     };
-//   }, []);
-
-//   // ========================
-//   // CONTACT FORM HANDLER
-//   // ========================
-//   const handleSubmit = async (e: React.FormEvent) => {
-//     e.preventDefault();
-    
-//     // Basic validation - now includes subject
-//     if (!formData.name || !formData.email || !formData.subject || !formData.message) {
-//       toast.error('Please fill all required fields');
-//       return;
-//     }
-
-//     // Name validation
-//     if (formData.name.trim().length < 2) {
-//       toast.error('Name must be at least 2 characters');
-//       return;
-//     }
-
-//     // Subject validation
-//     if (formData.subject.trim().length < 5) {
-//       toast.error('Subject must be at least 5 characters');
-//       return;
-//     }
-
-//     // Rest of your validation remains the same...
-//     // Email validation
-//     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-//     if (!emailRegex.test(formData.email)) {
-//       toast.error('Please enter a valid email address');
-//       return;
-//     }
-
-//     // Block disposable/temporary emails
-//     const tempEmailDomains = [
-//       'tempmail.com', 'mailinator.com', 'guerrillamail.com', 
-//       '10minutemail.com', 'throwawaymail.com', 'fakeinbox.com',
-//       'yopmail.com', 'trashmail.com', 'maildrop.cc'
-//     ];
-//     const emailDomain = formData.email.split('@')[1];
-//     if (tempEmailDomains.some(domain => emailDomain.includes(domain))) {
-//       toast.error('Please use a permanent email address');
-//       return;
-//     }
-
-//     // Message validation
-//     if (formData.message.trim().length < 10) {
-//       toast.error('Message should be at least 10 characters');
-//       return;
-//     }
-
-//     setIsSending(true);
-
-//     try {
-//       // Send to Web3Forms first
-//       const web3formData = new FormData();
-//       web3formData.append('access_key', import.meta.env.VITE_WEB3FORMS_KEY);
-//       web3formData.append('name', formData.name);
-//       web3formData.append('email', formData.email);
-//       web3formData.append('subject', formData.subject); // Include subject
-//       web3formData.append('message', formData.message);
-//       web3formData.append('botcheck', '');
-
-//       const web3Response = await fetch('https://api.web3forms.com/submit', {
-//         method: 'POST',
-//         body: web3formData
-//       });
-
-//       const web3Data = await web3Response.json();
-
-//       if (!web3Response.ok || !web3Data.success) {
-//         throw new Error(web3Data.message || 'Web3Forms submission failed');
-//       }
-
-//       // If Web3Forms succeeds, send to our backend
-//       const backendResponse = await fetch(`${API_URL}/api/messages`, {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json',
-//           'x-api-key': import.meta.env.VITE_PUBLIC_API_KEY  // 👈 add public key
-//         },
-//         body: JSON.stringify({
-//           name: formData.name,
-//           email: formData.email,
-//           subject: formData.subject,
-//           message: formData.message,
-//           isRead: false,
-//           isStarred: false,
-//           isArchived: false
-//         })
-//       });
-
-
-//       const backendData = await backendResponse.json();
-
-//       if (!backendResponse.ok) {
-//         throw new Error(backendData.error || 'Backend submission failed');
-//       }
-
-//       // Success - clear form and show success message
-//       toast.success('Message sent successfully!');
-//       setFormData({ name: '', email: '', subject: '', message: '' }); // Reset subject too
-      
-//     } catch (error) {
-//       console.error('Error sending message:', error);
-      
-//       if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
-//         toast.error('Network error - please check your connection');
-//       } else {
-//         toast.error(error.message || 'An error occurred. Please try again.');
-//       }
-      
-//     } finally {
-//       setIsSending(false);
-//     }
-//   };
-//   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-//     const { name, value } = e.target;
-    
-//     // Basic input sanitization
-//     let sanitizedValue = value;
-//     if (name === 'name') {
-//       // Remove any numbers from name field
-//       sanitizedValue = value.replace(/[0-9]/g, '');
-//     }
-    
-//     setFormData(prev => ({ 
-//       ...prev, 
-//       [name]: sanitizedValue 
-//     }));
-//   };
-//   // ========================
-//   // HELPER FUNCTIONS
-//   // ========================
-//   const getIcon = (type: 'education' | 'certification' | 'achievement' | 'publication') => {
-//     switch (type) {
-//       case 'education': return <GraduationCap className="w-6 h-6 text-white" />;
-//       case 'certification': return <Code className="w-6 h-6 text-white" />;
-//       case 'achievement': return <Shield className="w-6 h-6 text-white" />;
-//       case 'publication': return <ArrowRight className="w-6 h-6 text-white" />;
-//       default: return <GraduationCap className="w-6 h-6 text-white" />;
-//     }
-//   };
-
-//   const getIconBgClass = (type: 'education' | 'certification' | 'achievement' | 'publication') => {
-//     switch (type) {
-//       case 'education': return 'bg-purple-500';
-//       case 'certification': return 'bg-blue-500';
-//       case 'achievement': return 'bg-amber-500';
-//       case 'publication': return 'bg-emerald-500';
-//       default: return 'bg-primary';
-//     }
-//   };
-
-//   // Show loading state
-//   if (loading) {
-//     return (
-//       <div className="flex items-center justify-center min-h-screen">
-//         <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-primary"></div>
-//       </div>
-//     );
-//   }
-
-//   // Show error toast if there was an error
-//   if (error) {
-//     toast.error(error);
-//   }
-
-//   return (
-//     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
-//       <MainNav />
-
-//       {/* Hero Section */}
-//       <section id="home" className="min-h-screen flex items-center justify-center relative overflow-hidden pt-32">
-//         <div ref={gridRef} className="absolute inset-0 grid-background">
-//           {/* Background elements */}
-//           <div className="absolute inset-0 overflow-hidden">
-//             <div className="absolute w-[200%] h-[200%] -left-[50%] -top-[50%] bg-primary/10 blur-[200px] opacity-70 animate-pulse-slow"></div>
-//             <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-primary/30 rounded-full blur-[150px] animate-pulse-slow"></div>
-//             <div className="absolute top-1/4 left-20 w-[500px] h-[500px] bg-[#6E59A5]/30 rounded-full blur-[180px] animate-pulse-slow"></div>
-//           </div>
-//           <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/20 to-background z-10"></div>
-//           <div 
-//             ref={glowRef} 
-//             className="grid-glow absolute w-[400px] h-[400px] rounded-full pointer-events-none"
-//             style={{
-//               background: 'radial-gradient(circle, rgba(155,135,245,0.3) 0%, rgba(155,135,245,0.1) 40%, transparent 70%)',
-//               transform: 'translate(-50%, -50%)',
-//               transition: 'opacity 0.5s ease, transform 0.3s ease',
-//               opacity: mouseActive ? 1 : 0
-//             }}
-//           />
-//           <div 
-//             className="absolute inset-0 z-10 pointer-events-none"
-//             style={{
-//               background: mouseActive 
-//                 ? `radial-gradient(circle 800px at ${mousePosition.x}px ${mousePosition.y}px, rgba(155,135,245,0.15), transparent 70%)`
-//                 : 'transparent',
-//               transition: 'background 0.3s ease'
-//             }}
-//           />
-//         </div>
-
-//         <div className="container mx-auto px-4 relative z-20">
-//           {/* Mobile Avatar */}
-//           <div className="lg:hidden flex flex-col items-center animate-fade-in mb-12">
-//             <div className="w-40 h-40 sm:w-52 sm:h-52 md:w-64 md:h-64 rounded-full overflow-hidden relative glass p-1 glow-border">
-//               <img
-//                 src="/hero.png"
-//                 alt="Garv Kamra"
-//                 className="w-full h-full object-cover rounded-full"
-//               />
-//             </div>
-//           </div>
-
-//           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-//             <div className="animate-fade-in text-center lg:text-left">
-//               <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6">
-//                 <span className="text-gradient-primary">Hello</span>,{" "}
-//                 <TypeAnimation
-//                   sequence={typeAnimationSequence}
-//                   wrapper="span"
-//                   speed={50}
-//                   repeat={Infinity}
-//                 />
-//               </h1>
-//               <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed">
-//                 {heroContent.heroParagraph}
-//               </p>
-//               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-//                 <a
-//                   href={heroContent.resume.url}
-//                   target="_blank"
-//                   rel="noopener noreferrer"
-//                   className="px-6 py-3 bg-primary text-white rounded-lg hover-glow flex items-center justify-center gap-2 group"
-//                 >
-//                   Download Resume
-//                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-//                 </a>
-//                 <a
-//                   href="#contact"
-//                   className="px-6 py-3 glass rounded-lg hover:bg-white/20 transition-colors"
-//                 >
-//                   Get in touch
-//                 </a>
-//               </div>
-//             </div>
-            
-//             {/* Desktop Avatar */}
-//             <div className="hidden lg:flex flex-col items-center animate-fade-in">
-//               <div className="w-40 h-40 sm:w-52 sm:h-52 md:w-64 md:h-64 rounded-full overflow-hidden relative glass p-1 glow-border">
-//                 <img
-//                   src="/hero.png"
-//                   alt="Garv Kamra"
-//                   className="w-full h-full object-cover rounded-full"
-//                 />
-//               </div>
-              
-//               <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-xl">
-//                 <div className="glass p-4 rounded-lg text-center hover-glow-subtle">
-//                   <Shield className="w-8 h-8 mx-auto mb-2 text-primary" />
-//                   <h3 className="font-medium mb-1">Cybersecurity</h3>
-//                   <p className="text-xs text-muted-foreground">SOC L1 Aspirant | CEH v12, CND v3</p>
-//                 </div>
-//                 <div className="glass p-4 rounded-lg text-center hover-glow-subtle">
-//                   <Code className="w-8 h-8 mx-auto mb-2 text-primary" />
-//                   <h3 className="font-medium mb-1">Development</h3>
-//                   <p className="text-xs text-muted-foreground">React, Tailwind, Express.js</p>
-//                 </div>
-//                 <div className="glass p-4 rounded-lg text-center hover-glow-subtle">
-//                   <GraduationCap className="w-8 h-8 mx-auto mb-2 text-primary" />
-//                   <h3 className="font-medium mb-1">Hardware & IoT</h3>
-//                   <p className="text-xs text-muted-foreground">Arduino, NodeMCU, Robotics</p>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       </section>
-
-//       {/* About Section */}
-//       <section id="about" className="py-20">
-//         <div className="container mx-auto px-4">
-//           <motion.div
-//             initial={{ opacity: 0, y: 20 }}
-//             animate={{ opacity: 1, y: 0 }}
-//             transition={{ duration: 0.5 }}
-//             className="text-center mb-16"
-//           >
-//             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-//               About <span className="text-gradient-primary">Me</span>
-//             </h2>
-//             <p className="text-muted-foreground max-w-2xl mx-auto">
-//               Get to know me, my skills, and what drives my passion for cybersecurity and development.
-//             </p>
-//           </motion.div>
-          
-//           <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-//             <motion.div 
-//               className="glass p-8 rounded-2xl transform hover:scale-105 transition-all duration-300" 
-//               style={{ 
-//                 transform: "perspective(1000px) rotateX(0deg)",
-//                 transition: "transform 0.5s ease",
-//                 willChange: "transform"
-//               }}
-//               initial={{ opacity: 0, y: 20 }}
-//               animate={{ opacity: 1, y: 0 }}
-//               transition={{ duration: 0.5, delay: 0.1 }}
-//               onMouseEnter={(e) => {
-//                 const rect = e.currentTarget.getBoundingClientRect();
-//                 const x = e.clientX - rect.left;
-//                 const y = e.clientY - rect.top;
-//                 const rotateX = (y - rect.height / 2) / 20;
-//                 const rotateY = (x - rect.width / 2) / 20;
-//                 e.currentTarget.style.transform = `perspective(1000px) rotateX(${-rotateX}deg) rotateY(${rotateY}deg)`;
-//               }}
-//               onMouseLeave={(e) => {
-//                 e.currentTarget.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg)";
-//               }}
-//             >
-//               <div className="flex items-center gap-4 mb-6">
-//                 <div className="p-3 rounded-xl bg-primary/10">
-//                   <User className="w-8 h-8 text-primary" />
-//                 </div>
-//                 <h3 className="text-2xl font-bold">Who I Am</h3>
-//               </div>
-//               <p className="text-muted-foreground leading-relaxed">
-//                 {heroContent.about?.whoIAm}
-//               </p>
-//             </motion.div>
-
-//             <motion.div 
-//               className="glass p-8 rounded-2xl transform hover:scale-105 transition-all duration-300"
-//               style={{ 
-//                 transform: "perspective(1000px) rotateX(0deg)",
-//                 transition: "transform 0.5s ease",
-//                 willChange: "transform"
-//               }}
-//               initial={{ opacity: 0, y: 20 }}
-//               animate={{ opacity: 1, y: 0 }}
-//               transition={{ duration: 0.5, delay: 0.2 }}
-//               onMouseEnter={(e) => {
-//                 const rect = e.currentTarget.getBoundingClientRect();
-//                 const x = e.clientX - rect.left;
-//                 const y = e.clientY - rect.top;
-//                 const rotateX = (y - rect.height / 2) / 20;
-//                 const rotateY = (x - rect.width / 2) / 20;
-//                 e.currentTarget.style.transform = `perspective(1000px) rotateX(${-rotateX}deg) rotateY(${rotateY}deg)`;
-//               }}
-//               onMouseLeave={(e) => {
-//                 e.currentTarget.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg)";
-//               }}
-//             >
-//               <div className="flex items-center gap-4 mb-6">
-//                 <div className="p-3 rounded-xl bg-primary/10">
-//                   <Brain className="w-8 h-8 text-primary" />
-//                 </div>
-//                 <h3 className="text-2xl font-bold">My Expertise</h3>
-//               </div>
-//               <p className="text-muted-foreground leading-relaxed">
-//                 {heroContent.about?.myExpertise}
-//               </p>
-//             </motion.div>
-
-//             <motion.div 
-//               className="glass p-8 rounded-2xl transform hover:scale-105 transition-all duration-300"
-//               style={{ 
-//                 transform: "perspective(1000px) rotateX(0deg)",
-//                 transition: "transform 0.5s ease",
-//                 willChange: "transform"
-//               }}
-//               initial={{ opacity: 0, y: 20 }}
-//               animate={{ opacity: 1, y: 0 }}
-//               transition={{ duration: 0.5, delay: 0.3 }}
-//               onMouseEnter={(e) => {
-//                 const rect = e.currentTarget.getBoundingClientRect();
-//                 const x = e.clientX - rect.left;
-//                 const y = e.clientY - rect.top;
-//                 const rotateX = (y - rect.height / 2) / 20;
-//                 const rotateY = (x - rect.width / 2) / 20;
-//                 e.currentTarget.style.transform = `perspective(1000px) rotateX(${-rotateX}deg) rotateY(${rotateY}deg)`;
-//               }}
-//               onMouseLeave={(e) => {
-//                 e.currentTarget.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg)";
-//               }}
-//             >
-//               <div className="flex items-center gap-4 mb-6">
-//                 <div className="p-3 rounded-xl bg-primary/10">
-//                   <Rocket className="w-8 h-8 text-primary" />
-//                 </div>
-//                 <h3 className="text-2xl font-bold">My Mission</h3>
-//               </div>
-//               <p className="text-muted-foreground leading-relaxed">
-//                 {heroContent.about?.myMission}
-//               </p>
-//             </motion.div>
-//           </div>
-
-//           <motion.div 
-//             className="glass p-8 rounded-2xl max-w-4xl mx-auto mb-16 transform hover:scale-105 transition-all duration-300"
-//             initial={{ opacity: 0, y: 20 }}
-//             animate={{ opacity: 1, y: 0 }}
-//             transition={{ duration: 0.5 }}
-//             style={{ 
-//               transform: "perspective(1000px) rotateX(0deg)",
-//               transition: "transform 0.5s ease",
-//               willChange: "transform"
-//             }}
-//             onMouseEnter={(e) => {
-//               const rect = e.currentTarget.getBoundingClientRect();
-//               const x = e.clientX - rect.left;
-//               const y = e.clientY - rect.top;
-//               const rotateX = (y - rect.height / 2) / 20;
-//               const rotateY = (x - rect.width / 2) / 20;
-//               e.currentTarget.style.transform = `perspective(1000px) rotateX(${-rotateX}deg) rotateY(${rotateY}deg)`;
-//             }}
-//             onMouseLeave={(e) => {
-//               e.currentTarget.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg)";
-//             }}
-//           >
-//             <h2 className="text-3xl md:text-4xl font-bold text-center mb-6">
-//               My <span className="text-primary">From Curiosity to Cybersecurity</span>
-//             </h2>
-//             <div className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
-//               {heroContent.about?.myJourney}
-//             </div>
-//           </motion.div>
-
-// {/* <motion.div 
-//   initial={{ opacity: 0, y: 20 }}
-//   animate={{ opacity: 1, y: 0 }}
-//   transition={{ duration: 0.5, delay: 0.3 }}
-//   className="mt-12 max-w-4xl mx-auto"
-// >
-//   <div className="glass p-6 rounded-xl">
-//     <div className="flex flex-col md:flex-row items-center gap-8">
-//       <div className="md:w-1/2">
-//         <div className="flex items-center gap-3 mb-4">
-//           <div className="p-2 rounded-lg bg-primary/10">
-//             <Shield className="w-5 h-5 text-primary" />
-//           </div>
-//           <h4 className="text-xl font-bold">Cybersecurity Practice</h4>
-//         </div>
-//         <p className="text-muted-foreground mb-5 text-base leading-relaxed">
-//           Active on TryHackMe completing cybersecurity labs, CTF challenges, and skill development exercises.
-//         </p>
-//         <a 
-//           href="https://tryhackme.com/p/securegarv" 
-//           target="_blank" 
-//           rel="noopener noreferrer"
-//           className="inline-flex items-center gap-2 text-sm text-primary hover:underline font-medium"
-//         >
-//           View profile
-//           <ExternalLink className="w-3 h-3" />
-//         </a>
-//       </div>
-//       <div className="md:w-1/2 flex justify-center mt-9">
-//         <iframe 
-//           src="https://tryhackme.com/api/v2/badges/public-profile?userPublicId=1986213" 
-//           style={{ 
-//             border: 'none', 
-//             width: '340px', 
-//             height: '160px',
-//             borderRadius: '8px'
-//           }}
-//           title="TryHackMe Badges"
-//           className="rounded-lg"
-//         />
-//       </div>
-//     </div>
-//   </div>
-// </motion.div> */}
-//           <div className="pt-12 mb-16">
-//               <motion.h2 
-//                 className="text-3xl md:text-4xl font-bold text-center mb-8"
-//                 initial={{ opacity: 0, y: 20 }}
-//                 animate={{ opacity: 1, y: 0 }}
-//                 transition={{ duration: 0.5 }}
-//               >
-//                 My <span className="text-primary">Skills</span>
-//               </motion.h2>
-//               <MarqueeSkills skills={skills} />
-//             </div>
-//             </div>
-//           </section>
-      
-//       {/* Education Section */}
-//       <section id="education" className="py-20 bg-background/50">
-//         <div className="container mx-auto px-4">
-//           <motion.div
-//             initial={{ opacity: 0, y: 20 }}
-//             animate={{ opacity: 1, y: 0 }}
-//             transition={{ duration: 0.5 }}
-//             className="text-center mb-16"
-//           >
-//             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-//               Education & <span className="text-gradient-primary">Credentials</span>
-//             </h2>
-//             <p className="text-muted-foreground max-w-2xl mx-auto">
-//               A timeline of my educational background, professional certifications, achievements, and publications.
-//             </p>
-//           </motion.div>
-          
-//           <div className="flex flex-wrap justify-center gap-3 mb-12">
-//             <FilterButton 
-//               label="All" 
-//               count={counts.all}
-//               isActive={activeFilter === 'all'} 
-//               onClick={() => setActiveFilter('all')} 
-//             />
-//             <FilterButton 
-//               label="Education" 
-//               count={counts.education}
-//               isActive={activeFilter === 'education'} 
-//               onClick={() => setActiveFilter('education')} 
-//               colorClass="bg-purple-500/20"
-//             />
-//             <FilterButton 
-//               label="Certifications" 
-//               count={counts.certification}
-//               isActive={activeFilter === 'certification'} 
-//               onClick={() => setActiveFilter('certification')} 
-//               colorClass="bg-blue-500/20"
-//             />
-//             <FilterButton 
-//               label="Publications" 
-//               count={counts.publication}
-//               isActive={activeFilter === 'publication'} 
-//               onClick={() => setActiveFilter('publication')} 
-//               colorClass="bg-emerald-500/20"
-//             />
-//           </div>
-          
-//           {filteredEducation.length === 0 ? (
-//             <div className="text-center py-12 glass rounded-lg">
-//               <p className="text-muted-foreground">No education items found for this filter.</p>
-//             </div>
-//           ) : (
-//             <div className="max-w-3xl mx-auto relative">
-//               <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary/50 via-primary/30 to-transparent"></div>
-              
-//               <div className="space-y-8">
-//                 {filteredEducation.map((edu, index) => (
-//                   <motion.div 
-//                     key={edu.id}
-//                     initial={{ opacity: 0, x: -20 }}
-//                     animate={{ opacity: 1, x: 0 }}
-//                     transition={{ duration: 0.4, delay: index * 0.1 }}
-//                     id={edu.type}
-//                     className={`glass p-6 rounded-lg relative transform transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(155,135,245,0.3)] ml-10`}
-//                   >
-//                     <div className={`absolute -left-10 top-6 w-8 h-8 ${getIconBgClass(edu.type as 'education' | 'certification' | 'achievement' | 'publication')} rounded-full flex items-center justify-center`}>
-//                       {getIcon(edu.type as 'education' | 'certification' | 'achievement' | 'publication')}
-//                     </div>
-                    
-//                     <div>
-//                       <div className="flex items-center">
-//                         <h3 className="text-xl font-bold">{edu.institution}</h3>
-//                         <span className="ml-3 text-xs uppercase bg-white/20 px-2 py-1 rounded-full">
-//                           {edu.type}
-//                         </span>
-//                       </div>
-//                       <p className="text-primary">{edu.degree}</p>
-//                       <p className="text-sm text-muted-foreground mb-2">{edu.period}</p>
-//                       <p className="text-muted-foreground">
-//                         {edu.description}
-//                       </p>
-//                       {edu.certificateLink && (
-//                         <a 
-//                           href={edu.certificateLink} 
-//                           target="_blank" 
-//                           rel="noopener noreferrer" 
-//                           className="inline-flex items-center gap-2 mt-3 text-primary hover:underline"
-//                         >
-//                           View <ExternalLink className="w-4 h-4" />
-//                         </a>
-//                       )}
-//                     </div>
-//                   </motion.div>
-//                 ))}
-//               </div>
-//             </div>
-//           )}
-//         </div>
-//       </section>
-      
-//       {/* Projects Section */}
-//       <section id="projects" className="py-20">
-//         <div className="container mx-auto px-4">
-//           <motion.div
-//             initial={{ opacity: 0, y: 20 }}
-//             animate={{ opacity: 1, y: 0 }}
-//             transition={{ duration: 0.5 }}
-//             className="text-center mb-16"
-//           >
-//             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-//               My <span className="text-gradient-primary">Projects</span>
-//             </h2>
-//             <p className="text-muted-foreground max-w-2xl mx-auto">
-//               A showcase of my work in web development and other technical projects.
-//             </p>
-//           </motion.div>
-          
-//           <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-//             {projects.map((project, index) => (
-//               <motion.div
-//                 key={project._id}
-//                 initial={{ opacity: 0, y: 20 }}
-//                 animate={{ opacity: 1, y: 0 }}
-//                 transition={{ duration: 0.5, delay: index * 0.1 }}
-//               >
-//                 <ProjectCard 
-//                   _id={project._id}
-//                   title={project.title}
-//                   description={project.description}
-//                   technologies={project.technologies}
-//                   liveUrl={project.liveUrl}
-//                   githubUrl={project.githubUrl}
-//                   image={project.image}
-//                   category={project.category}
-//                 />
-//               </motion.div>
-//             ))}
-//           </div>
-//         </div>
-//       </section>
-
-
-//       {/* Experience Section */}
-//       <section id="experience" className="py-20 bg-background/50">
-//         <div className="container mx-auto px-4">
-//           <motion.div
-//             initial={{ opacity: 0, y: 20 }}
-//             animate={{ opacity: 1, y: 0 }}
-//             transition={{ duration: 0.5 }}
-//             className="text-center mb-16"
-//           >
-//             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-//               My <span className="text-gradient-primary">Experience</span>
-//             </h2>
-//             <p className="text-muted-foreground max-w-2xl mx-auto">
-//               A chronological journey through my professional experiences and roles.
-//             </p>
-//           </motion.div>
-          
-//           {loading ? (
-//             <div className="flex justify-center items-center h-64">
-//               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-//             </div>
-//           ) : (
-//             <div className="max-w-3xl mx-auto">
-//               <div className="flex justify-center mb-8">
-//                 <div className="glass px-6 py-3 rounded-full flex items-center gap-2">
-//                   <Briefcase className="w-5 h-5 text-primary" />
-//                   <span className="font-medium">Professional Timeline</span>
-//                 </div>
-//               </div>
-              
-//               {experiences.length === 0 ? (
-//                 <div className="text-center glass p-8 rounded-lg">
-//                   <p className="text-muted-foreground">No experience entries found.</p>
-//                 </div>
-//               ) : (
-//                 <div className="space-y-6">
-//                   {experiences.map((exp, index) => (
-//                     <motion.div
-//                       key={exp._id}
-//                       initial={{ opacity: 0, y: 20 }}
-//                       animate={{ opacity: 1, y: 0 }}
-//                       transition={{ duration: 0.5, delay: index * 0.1 }}
-//                     >
-//                       <ExperienceCard
-//                         _id={exp._id}
-//                         company={exp.company}
-//                         position={exp.position}
-//                         location={exp.location}
-//                         startDate={exp.startDate}
-//                         endDate={exp.endDate}
-//                         description={exp.description}
-//                         achievements={exp.achievements}
-//                         technologies={exp.technologies}
-//                         isCurrentJob={exp.isCurrentJob}
-//                       />
-//                     </motion.div>
-//                   ))}
-//                 </div>
-//               )}
-//             </div>
-//           )}
-//         </div>
-//       </section>
-
-
-//       {/* Blog Section */}
-//       <section id="blog" className="py-20 relative">
-//         <div className="container mx-auto px-4 relative z-10">
-//           <motion.div
-//             initial={{ opacity: 0, y: 20 }}
-//             animate={{ opacity: 1, y: 0 }}
-//             transition={{ duration: 0.5 }}
-//             className="text-center mb-16"
-//           >
-//             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-//               My <span className="text-gradient-primary">Blog</span>
-//             </h2>
-//             <p className="text-muted-foreground max-w-2xl mx-auto">
-//               Thoughts, tutorials, and insights on cybersecurity, development, and technology.
-//             </p>
-//           </motion.div>
-          
-//           {/* Handle different response formats */}
-//           {(() => {
-//             // Debug what we received
-//             // console.log('Blog API response:', blogPosts);
-            
-//             // Extract posts from different possible response formats
-//             let postsArray = [];
-            
-//             if (Array.isArray(blogPosts)) {
-//               postsArray = blogPosts;
-//             } else if (
-//               blogPosts &&
-//               typeof blogPosts === 'object' &&
-//               !Array.isArray(blogPosts)
-//             ) {
-//               // Handle different backend response formats
-//               if (
-//                 'posts' in blogPosts &&
-//                 Array.isArray((blogPosts as { posts?: unknown }).posts)
-//               ) {
-//                 postsArray = (blogPosts as { posts: unknown[] }).posts;
-//               } else if (
-//                 'data' in blogPosts &&
-//                 Array.isArray((blogPosts as { data?: unknown }).data)
-//               ) {
-//                 postsArray = (blogPosts as { data: unknown[] }).data;
-//               } else if (
-//                 'items' in blogPosts &&
-//                 Array.isArray((blogPosts as { items?: unknown }).items)
-//               ) {
-//                 postsArray = (blogPosts as { items: unknown[] }).items;
-//               }
-//             }
-            
-//             return postsArray.length === 0 ? (
-//               <div className="text-center py-12 glass rounded-lg">
-//                 <p className="text-muted-foreground">No blog posts yet. Check back soon!</p>
-//               </div>
-//             ) : (
-//               <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-//                 {postsArray
-//                   .filter(post => post && typeof post === 'object')
-//                   .map((post, index) => (
-//                     <motion.div
-//                       key={post._id || `blog-${index}-${Date.now()}`}
-//                       initial={{ opacity: 0, y: 20 }}
-//                       animate={{ opacity: 1, y: 0 }}
-//                       transition={{ duration: 0.5, delay: index * 0.1 }}
-//                     >
-//                       <BlogCard 
-//                         post={post}
-//                         onClick={() => {
-//                           setSelectedBlog(post);
-//                           setIsBlogModalOpen(true);
-//                         }}
-//                       />
-//                     </motion.div>
-//                   ))
-//                 }
-//               </div>
-//             );
-//           })()}
-//         </div>
-//       </section>
-
-      
-//       {/* Testimonials Section */}
-//         <FeedbackSection reviews={reviews} />
-      
-//       {/* Contact Section */}
-//       <section id="contact" className="py-20">
-//         <div className="container mx-auto px-4">
-//           <motion.div
-//             initial={{ opacity: 0, y: 20 }}
-//             animate={{ opacity: 1, y: 0 }}
-//             transition={{ duration: 0.5 }}
-//             className="text-center mb-16"
-//           >
-//             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-//               Let's <span className="text-gradient-primary">Connect</span>
-//             </h2>
-//             <p className="text-muted-foreground max-w-2xl mx-auto">
-//               Have a question or want to work together? Feel free to reach out!
-//             </p>
-//           </motion.div>
-          
-//           <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
-//             <motion.div 
-//               className="glass p-8 rounded-lg"
-//               initial={{ opacity: 0, x: -30 }}
-//               animate={{ opacity: 1, x: 0 }}
-//               transition={{ duration: 0.5, delay: 0.1 }}
-//             >
-//               <h3 className="text-2xl font-bold mb-6">Get in Touch</h3>
-//               <form onSubmit={handleSubmit} className="space-y-6">
-//                 <div>
-//                   <label htmlFor="name" className="block text-sm font-medium mb-2">Name</label>
-//                   <input
-//                     type="text"
-//                     id="name"
-//                     name="name"
-//                     value={formData.name}
-//                     onChange={handleChange}
-//                     required
-//                     className="w-full px-4 py-2 bg-background border rounded-lg focus:ring-2 focus:ring-primary outline-none"
-//                   />
-//                 </div>
-//                 <div>
-//                   <label htmlFor="email" className="block text-sm font-medium mb-2">Email</label>
-//                   <input
-//                     type="email"
-//                     id="email"
-//                     name="email"
-//                     value={formData.email}
-//                     onChange={handleChange}
-//                     required
-//                     className="w-full px-4 py-2 bg-background border rounded-lg focus:ring-2 focus:ring-primary outline-none"
-//                   />
-//                 </div>
-//                 {/* Add Subject Field */}
-//                 <div>
-//                   <label htmlFor="subject" className="block text-sm font-medium mb-2">Subject</label>
-//                   <input
-//                     type="text"
-//                     id="subject"
-//                     name="subject"
-//                     value={formData.subject}
-//                     onChange={handleChange}
-//                     required
-//                     className="w-full px-4 py-2 bg-background border rounded-lg focus:ring-2 focus:ring-primary outline-none"
-//                   />
-//                 </div>
-//                 <div>
-//                   <label htmlFor="message" className="block text-sm font-medium mb-2">Message</label>
-//                   <textarea
-//                     id="message"
-//                     name="message"
-//                     rows={4}
-//                     value={formData.message}
-//                     onChange={handleChange}
-//                     required
-//                     className="w-full px-4 py-2 bg-background border rounded-lg focus:ring-2 focus:ring-primary outline-none"
-//                   ></textarea>
-//                 </div>
-//                 <button
-//                   type="submit"
-//                   disabled={isSending}
-//                   className={`w-full px-6 py-3 bg-primary text-primary-foreground rounded-lg hover-glow flex items-center justify-center ${
-//                     isSending ? 'opacity-75 cursor-not-allowed' : ''
-//                   }`}
-//                 >
-//                   {isSending ? (
-//                     <>
-//                       <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-//                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-//                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-//                       </svg>
-//                       Sending...
-//                     </>
-//                   ) : (
-//                     'Send Message'
-//                   )}
-//                 </button>
-//               </form>
-//             </motion.div>
-            
-//             <motion.div 
-//               initial={{ opacity: 0, x: 30 }}
-//               animate={{ opacity: 1, x: 0 }}
-//               transition={{ duration: 0.5, delay: 0.2 }}
-//               className="flex flex-col justify-center"
-//             >
-//               <div className="glass p-8 rounded-lg mb-8">
-//                 <h3 className="text-2xl font-bold mb-6">Contact Information</h3>
-//                 <div className="space-y-4">
-//                   <div className="flex items-center gap-4">
-//                     <Mail className="text-primary" />
-//                     <a href="mailto:securegarv@gmail.com" className="hover:text-primary transition-colors">
-//                       securegarv@gmail.com
-//                     </a>
-//                   </div>
-//                   <div className="flex items-center gap-4">
-//                     <Github className="text-primary" />
-//                     <a href="https://github.com/0xgrv" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
-//                       github.com/0xgrv
-//                     </a>
-//                   </div>
-//                   <div className="flex items-center gap-4">
-//                     <Linkedin className="text-primary" />
-//                     <a href="https://www.linkedin.com/in/garvkamra/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
-//                       linkedin.com/in/garvkamra
-//                     </a>
-//                   </div>
-//                 </div>
-//               </div>
-              
-//               <div className="glass p-8 rounded-lg">
-//                 <h3 className="text-2xl font-bold mb-6">Let's Connect</h3>
-//                 <p className="text-muted-foreground mb-6">
-//                   I'm always open to discussing new projects, creative ideas, or opportunities to be part of your vision.
-//                 </p>
-//                 <a
-//                   href="https://calendly.com/garvkamra24/lets-connect"
-//                   target="_blank"
-//                   className="px-6 py-3 bg-white/10 hover:bg-white/20 transition-colors rounded-lg block text-center"
-//                 >
-//                   Schedule a call
-//                 </a>
-//               </div>
-//             </motion.div>
-//           </div>
-//         </div>
-//       </section>
-
-//       <footer className="text-center text-sm text-muted-foreground py-6">
-//         © {new Date().getFullYear()} Garv Kamra. All rights reserved.
-//       </footer>
-//           {isBlogModalOpen && selectedBlog && (
-//       <BlogModal 
-//         post={selectedBlog} 
-//         onClose={() => {
-//           setIsBlogModalOpen(false);
-//           setSelectedBlog(null);
-//         }} 
-//       />
-//     )}
-//     </div>
-//   );
+import {
+  ArrowRight,
+  Shield,
+  Code2,
+  GraduationCap,
+  Brain,
+  Rocket,
+  BookOpen,
+  Users,
+  Briefcase,
+  Mail,
+  Github,
+  Linkedin,
+  ExternalLink,
+  Terminal,
+  Cpu,
+  Heart,
+  Globe,
+  CalendarCheck,
+  Download,
+} from 'lucide-react';
+import { motion } from 'framer-motion';
+
+import BlogCard from '../components/BlogCard';
+import BlogModal from '../components/BlogModal';
+import MainNav from '../components/MainNav';
+import MarqueeSkills from '../components/MarqueeSkills';
+import ProjectCard from '../components/ProjectCard';
+import ExperienceCard from '../components/ExperienceCard';
+import FeedbackSection from '../components/FeedbackSection';
+import { usePortfolioData } from '../hooks/usePortfolioData';
+
+// ─── Animation helpers ────────────────────────────────────────────────────────
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 28 },
+  visible: (delay = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.55, ease: 'easeOut', delay },
+  }),
 };
 
+const fadeLeft = {
+  hidden: { opacity: 0, x: -24 },
+  visible: (delay = 0) => ({
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.55, ease: 'easeOut', delay },
+  }),
+};
+
+// ─── Section heading helper ───────────────────────────────────────────────────
+
+interface SectionHeaderProps {
+  eyebrow: string;
+  title: React.ReactNode;
+  subtitle?: string;
+  centered?: boolean;
+}
+
+const SectionHeader = ({
+  eyebrow,
+  title,
+  subtitle,
+  centered = true,
+}: SectionHeaderProps) => (
+  <motion.div
+    initial="hidden"
+    whileInView="visible"
+    viewport={{ once: true }}
+    variants={fadeUp}
+    className={`mb-14 ${centered ? 'text-center' : ''}`}
+  >
+    <p className={`section-eyebrow ${centered ? 'justify-center' : ''}`}>
+      {eyebrow}
+    </p>
+    <h2 className="section-heading mb-4">{title}</h2>
+    {subtitle && (
+      <p
+        className={`text-[#687081] text-sm max-w-xl leading-relaxed ${
+          centered ? 'mx-auto' : ''
+        }`}
+      >
+        {subtitle}
+      </p>
+    )}
+  </motion.div>
+);
+
+// ─── Education helpers ────────────────────────────────────────────────────────
+
+const EDU_ICON_MAP = {
+  education:     { icon: GraduationCap, color: '#a78bfa', bg: 'rgba(167,139,250,0.1)', border: 'rgba(167,139,250,0.2)' },
+  certification: { icon: Shield,        color: '#3ecfb3', bg: 'rgba(62,207,179,0.1)',  border: 'rgba(62,207,179,0.2)' },
+  achievement:   { icon: Rocket,        color: '#e8a44a', bg: 'rgba(232,164,74,0.1)',  border: 'rgba(232,164,74,0.2)' },
+  publication:   { icon: BookOpen,      color: '#f06b8b', bg: 'rgba(240,107,139,0.1)', border: 'rgba(240,107,139,0.2)' },
+} as const;
+
+type EduType = keyof typeof EDU_ICON_MAP;
+
+// ─── Contact form ─────────────────────────────────────────────────────────────
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+// ─── Main component ───────────────────────────────────────────────────────────
+
+const Index = () => {
+  const location = useLocation();
+  const blogSectionRef = useRef<HTMLElement>(null);
+
+  // Data
+  const {
+    heroContent,
+    education,
+    projects,
+    experiences,
+    skills,
+    blogPosts,
+    reviews,
+    loading,
+  } = usePortfolioData();
+
+  // Blog modal
+  const [selectedBlog, setSelectedBlog] = useState<(typeof blogPosts)[0] | null>(null);
+  const [isBlogModalOpen, setIsBlogModalOpen] = useState(false);
+
+  // Education filter
+  const [activeFilter, setActiveFilter] = useState<'all' | EduType>('all');
+
+  // Contact form
+  const [isSending, setIsSending] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '', email: '', subject: '', message: '',
+  });
+
+  // Scroll to blog section if routed here
+  useEffect(() => {
+    if (location.state?.scrollToBlog && blogSectionRef.current) {
+      blogSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
+
+  // Typewriter sequence
+  const typeSequence = useMemo(
+    () => heroContent.typewriterTexts.flatMap((t) => [t, 2200]),
+    [heroContent.typewriterTexts],
+  );
+
+  // Education counts & filtered list
+  const eduCounts = useMemo(
+    () => ({
+      all:           education.length,
+      education:     education.filter((e) => e.type === 'education').length,
+      certification: education.filter((e) => e.type === 'certification').length,
+      achievement:   education.filter((e) => e.type === 'achievement').length,
+      publication:   education.filter((e) => e.type === 'publication').length,
+    }),
+    [education],
+  );
+
+  const filteredEdu = useMemo(
+    () => (activeFilter === 'all' ? education : education.filter((e) => e.type === activeFilter)),
+    [education, activeFilter],
+  );
+
+  // Contact handlers
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = e.target;
+    let sanitized = value;
+    // Strip digits from name field
+    if (name === 'name') sanitized = value.replace(/[0-9]/g, '');
+    setFormData((prev) => ({ ...prev, [name]: sanitized }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Validation
+    if (!formData.name || !formData.email || !formData.subject || !formData.message) {
+      toast.error('Please fill all required fields');
+      return;
+    }
+    if (formData.name.trim().length < 2) {
+      toast.error('Name must be at least 2 characters');
+      return;
+    }
+    if (formData.subject.trim().length < 5) {
+      toast.error('Subject must be at least 5 characters');
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+    const blockedDomains = [
+      'tempmail.com','mailinator.com','guerrillamail.com',
+      '10minutemail.com','throwawaymail.com','fakeinbox.com',
+      'yopmail.com','trashmail.com','maildrop.cc',
+    ];
+    const domain = formData.email.split('@')[1];
+    if (blockedDomains.some((d) => domain.includes(d))) {
+      toast.error('Please use a permanent email address');
+      return;
+    }
+    if (formData.message.trim().length < 10) {
+      toast.error('Message should be at least 10 characters');
+      return;
+    }
+
+    setIsSending(true);
+    try {
+      // Send via Web3Forms
+      const web3 = new FormData();
+      web3.append('access_key', import.meta.env.VITE_WEB3FORMS_KEY);
+      web3.append('name', formData.name);
+      web3.append('email', formData.email);
+      web3.append('subject', formData.subject);
+      web3.append('message', formData.message);
+      web3.append('botcheck', '');
+
+      const w3Res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        body: web3,
+      });
+      const w3Data = await w3Res.json();
+      if (!w3Res.ok || !w3Data.success) throw new Error(w3Data.message || 'Web3Forms failed');
+
+      // Mirror to backend
+      const beRes = await fetch(`${API_URL}/api/messages`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': import.meta.env.VITE_PUBLIC_API_KEY,
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message,
+          isRead: false,
+          isStarred: false,
+          isArchived: false,
+        }),
+      });
+
+      if (!beRes.ok) {
+        const beData = await beRes.json();
+        throw new Error(beData.error || 'Backend submission failed');
+      }
+
+      toast.success('Message sent successfully!');
+      setFormData({ name: '', email: '', subject: '', message: '' });
+    } catch (err) {
+      if (err instanceof TypeError && err.message.includes('Failed to fetch')) {
+        toast.error('Network error — please check your connection');
+      } else {
+        toast.error((err as Error).message || 'An error occurred. Please try again.');
+      }
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen" role="status" aria-live="polite">
+        <div className="relative">
+          <div className="w-12 h-12 rounded-full border-2 border-[#7c6af7]/20" />
+          <div className="absolute inset-0 w-12 h-12 rounded-full border-2 border-t-[#7c6af7] animate-spin" />
+        </div>
+        <span className="sr-only">Loading portfolio content…</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen text-[#e8edf5] overflow-x-hidden">
+      {/* Ambient background — fixed, behind everything */}
+      <div aria-hidden="true">
+        <div className="ambient-orb ambient-orb-1" />
+        <div className="ambient-orb ambient-orb-2" />
+        <div className="ambient-orb ambient-orb-3" />
+        <div className="grid-overlay" />
+      </div>
+
+      <MainNav />
+
+      <main id="main-content">
+        {/* ═══════════════════════════════════════
+            HERO
+        ═══════════════════════════════════════ */}
+        <section
+          id="home"
+          aria-label="Introduction"
+          className="relative min-h-screen flex items-center pt-24 pb-16 overflow-hidden"
+        >
+          <div className="container mx-auto px-4">
+            <div className="grid lg:grid-cols-2 gap-16 items-center">
+              {/* Text column */}
+              <div>
+                <motion.p
+                  custom={0}
+                  initial="hidden"
+                  animate="visible"
+                  variants={fadeUp}
+                  className="font-mono text-xs tracking-[4px] uppercase text-[#3ecfb3] mb-6"
+                >
+                  Security Analyst · VAPT · Red Team
+                </motion.p>
+
+                <motion.h1
+                  custom={0.08}
+                  initial="hidden"
+                  animate="visible"
+                  variants={fadeUp}
+                  className="font-display font-bold leading-[1.0] tracking-tight mb-6"
+                  style={{ fontSize: 'clamp(3rem, 7vw, 5.5rem)' }}
+                >
+                  <span className="block text-[#e8edf5]">Garv</span>
+                  <span className="block text-gradient-hero">Kamra</span>
+                </motion.h1>
+
+                {/* Typewriter */}
+                {typeSequence.length > 0 && (
+                  <motion.div
+                    custom={0.16}
+                    initial="hidden"
+                    animate="visible"
+                    variants={fadeUp}
+                    className="flex items-center gap-2 mb-6"
+                    aria-live="polite"
+                    aria-label="Current role"
+                  >
+                    <Terminal className="w-4 h-4 text-[#7c6af7] flex-shrink-0" aria-hidden="true" />
+                    <TypeAnimation
+                      sequence={typeSequence}
+                      wrapper="span"
+                      speed={55}
+                      repeat={Infinity}
+                      className="font-mono text-sm text-[#a594ff]"
+                    />
+                  </motion.div>
+                )}
+
+                <motion.p
+                  custom={0.22}
+                  initial="hidden"
+                  animate="visible"
+                  variants={fadeUp}
+                  className="text-[#687081] text-base leading-relaxed max-w-lg mb-8"
+                >
+                  {heroContent.heroParagraph}
+                </motion.p>
+
+                {/* CTAs */}
+                <motion.div
+                  custom={0.28}
+                  initial="hidden"
+                  animate="visible"
+                  variants={fadeUp}
+                  className="flex flex-wrap gap-3 mb-10"
+                >
+                  {heroContent.resume?.url && (
+                    <a
+                      href={heroContent.resume.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Download resume (opens in new tab)"
+                      className="btn-primary"
+                    >
+                      <Download className="w-4 h-4" aria-hidden="true" />
+                      Download Resume
+                    </a>
+                  )}
+                  <a
+                    href="#contact"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className="btn-ghost"
+                  >
+                    Get in Touch
+                    <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                  </a>
+                </motion.div>
+
+                {/* Role badge strip */}
+                <motion.div
+                  custom={0.34}
+                  initial="hidden"
+                  animate="visible"
+                  variants={fadeUp}
+                  className="flex flex-wrap gap-2"
+                  aria-label="Key identities"
+                >
+                  {[
+                    { dot: '#3ecfb3', label: 'VAPT Analyst' },
+                    { dot: '#7c6af7', label: 'Red Team Learner' },
+                    { dot: '#e8a44a', label: 'Poet & Author' },
+                    { dot: '#f06b8b', label: 'SecurityBoat Volunteer' },
+                  ].map(({ dot, label }) => (
+                    <span key={label} className="hero-role-badge">
+                      <span className="dot" style={{ background: dot }} aria-hidden="true" />
+                      {label}
+                    </span>
+                  ))}
+                </motion.div>
+              </div>
+
+              {/* Avatar column */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.7, delay: 0.2, ease: 'easeOut' }}
+                className="hidden lg:flex flex-col items-center gap-8"
+              >
+                {/* Avatar with gradient border frame */}
+                <div
+                  className="hero-avatar-frame"
+                  style={{ animation: 'float 7s ease-in-out infinite' }}
+                >
+                  <img
+                    src="/hero.png"
+                    alt="Garv Kamra — Security Analyst and Poet"
+                    width={340}
+                    height={400}
+                    className="rounded-[20px] object-cover block"
+                    style={{ width: 320, height: 380 }}
+                    loading="eager"
+                  />
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════
+            ABOUT
+        ═══════════════════════════════════════ */}
+        <section
+          id="about"
+          aria-labelledby="about-heading"
+          className="py-24 relative z-10"
+        >
+          <div className="container mx-auto px-4">
+            <SectionHeader
+              eyebrow="About"
+              title={
+                <>
+                  More Than a <span className="text-gradient-primary">Cyber Analyst</span>
+                </>
+              }
+              subtitle="Curiosity built me. Security sharpened me. Words define me."
+            />
+            <h2 id="about-heading" className="sr-only">About Garv Kamra</h2>
+
+            {/* Bento grid */}
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+              {[
+                {
+                  icon: Brain,
+                  iconColor: '#7c6af7',
+                  iconBg: 'rgba(124,106,247,0.1)',
+                  borderHover: 'rgba(124,106,247,0.3)',
+                  title: 'Who I Am',
+                  text: heroContent.about?.whoIAm,
+                  delay: 0,
+                },
+                {
+                  icon: Shield,
+                  iconColor: '#3ecfb3',
+                  iconBg: 'rgba(62,207,179,0.1)',
+                  borderHover: 'rgba(62,207,179,0.3)',
+                  title: 'My Expertise',
+                  text: heroContent.about?.myExpertise,
+                  delay: 0.08,
+                },
+                {
+                  icon: Rocket,
+                  iconColor: '#e8a44a',
+                  iconBg: 'rgba(232,164,74,0.1)',
+                  borderHover: 'rgba(232,164,74,0.3)',
+                  title: 'My Mission',
+                  text: heroContent.about?.myMission,
+                  delay: 0.16,
+                },
+              ].map(({ icon: Icon, iconColor, iconBg, borderHover, title, text, delay }) => (
+                <motion.div
+                  key={title}
+                  custom={delay}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                  variants={fadeUp}
+                  className="glass rounded-2xl p-7 glass-hover group"
+                >
+                  <div
+                    className="w-11 h-11 rounded-xl flex items-center justify-center mb-5"
+                    style={{ background: iconBg }}
+                    aria-hidden="true"
+                  >
+                    <Icon className="w-5 h-5" style={{ color: iconColor }} />
+                  </div>
+                  <h3 className="font-display text-base font-semibold mb-3 text-white">
+                    {title}
+                  </h3>
+                  <p className="text-sm text-[#687081] leading-relaxed">{text}</p>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Beyond the Terminal — full width */}
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={fadeUp}
+              custom={0.2}
+              className="glass rounded-2xl p-7 mb-4 glass-amber-hover"
+            >
+              <div className="flex items-start gap-5">
+                <div
+                  className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5"
+                  style={{ background: 'rgba(232,164,74,0.1)' }}
+                  aria-hidden="true"
+                >
+                  <BookOpen className="w-5 h-5" style={{ color: '#e8a44a' }} />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-display text-base font-semibold mb-2 text-white">
+                    Beyond the Terminal
+                  </h3>
+                  <p className="text-sm text-[#687081] leading-relaxed max-w-3xl">
+                    When I'm not dissecting systems, I write. Published poet and author on Amazon —
+                    words are just another language for understanding the world. I also volunteer with
+                    the{' '}
+                    <a
+                      href="https://securityboat.net"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#3ecfb3] hover:underline"
+                    >
+                      SecurityBoat Community
+                    </a>
+                    , making cybersecurity accessible to the next generation of defenders.
+                  </p>
+                </div>
+                <a
+                  href="https://www.amazon.in/stores/Garv-Kamra/author/B0FJWL3F7D/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="View Amazon author page"
+                  className="flex items-center gap-1.5 text-xs font-mono text-[#687081] hover:text-white transition-colors flex-shrink-0 mt-1"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
+                  Author Page
+                </a>
+              </div>
+            </motion.div>
+
+            {/* Journey */}
+            {heroContent.about?.myJourney && (
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeUp}
+                custom={0.24}
+                className="glass rounded-2xl p-7 glass-hover"
+              >
+                <div className="flex items-start gap-5">
+                  <div
+                    className="w-0.5 self-stretch rounded-full flex-shrink-0 mt-1"
+                    style={{
+                      background: 'linear-gradient(to bottom, #7c6af7, #3ecfb3, transparent)',
+                    }}
+                    aria-hidden="true"
+                  />
+                  <div>
+                    <h3 className="font-display text-base font-semibold mb-3 text-white">
+                      From Curiosity to Cybersecurity
+                    </h3>
+                    <p className="text-sm text-[#687081] leading-relaxed whitespace-pre-wrap">
+                      {heroContent.about.myJourney}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Skills marquee */}
+            <div className="mt-16">
+              <motion.h3
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeUp}
+                className="font-display text-xl font-bold text-center mb-8"
+              >
+                My <span className="text-gradient-teal">Arsenal</span>
+              </motion.h3>
+              <MarqueeSkills skills={skills} />
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════
+            EDUCATION & CREDENTIALS
+        ═══════════════════════════════════════ */}
+        <section
+          id="education"
+          aria-labelledby="education-heading"
+          className="py-24 relative z-10"
+          style={{ background: 'rgba(124,106,247,0.02)' }}
+        >
+          <div className="container mx-auto px-4">
+            <SectionHeader
+              eyebrow="Education"
+              title={
+                <>
+                  Education &{' '}
+                  <span className="text-gradient-primary">Credentials</span>
+                </>
+              }
+              subtitle="Academic background, certifications, achievements, and publications."
+            />
+            <h2 id="education-heading" className="sr-only">Education and Credentials</h2>
+
+            {/* Filter pill group */}
+            <div className="flex justify-center mb-12">
+              <div className="filter-group flex-wrap" role="group" aria-label="Filter credentials">
+                {(
+                  [
+                    { key: 'all', label: 'All', count: eduCounts.all },
+                    { key: 'education', label: 'Education', count: eduCounts.education },
+                    { key: 'certification', label: 'Certs', count: eduCounts.certification },
+                    { key: 'achievement', label: 'Achievements', count: eduCounts.achievement },
+                    { key: 'publication', label: 'Publications', count: eduCounts.publication },
+                  ] as { key: 'all' | EduType; label: string; count: number }[]
+                ).map(({ key, label, count }) => (
+                  <button
+                    key={key}
+                    onClick={() => setActiveFilter(key)}
+                    className={`filter-btn ${activeFilter === key ? 'active' : ''}`}
+                    aria-pressed={activeFilter === key}
+                    aria-label={`${label} (${count} items)`}
+                  >
+                    {label}
+                    {count > 0 && (
+                      <span
+                        className="ml-1.5 text-[0.65rem] opacity-70"
+                        aria-hidden="true"
+                      >
+                        {count}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {filteredEdu.length === 0 ? (
+              <p className="text-center text-[#687081] py-10">No items for this filter.</p>
+            ) : (
+              <div className="max-w-2xl mx-auto relative pl-8">
+                {/* Vertical timeline line */}
+                <div className="edu-timeline-line" aria-hidden="true" />
+
+                <div className="space-y-6">
+                  {filteredEdu.map((item, i) => {
+                    const cfg = EDU_ICON_MAP[item.type as EduType] ?? EDU_ICON_MAP.education;
+                    const Icon = cfg.icon;
+                    return (
+                      <motion.article
+                        key={item.id}
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, margin: '-60px' }}
+                        variants={fadeLeft}
+                        custom={i * 0.07}
+                        className="glass rounded-xl p-6 relative glass-hover"
+                        aria-label={`${item.type}: ${item.institution}`}
+                      >
+                        {/* Timeline dot */}
+                        <div
+                          className="edu-timeline-dot"
+                          style={{ background: cfg.bg, border: `2px solid ${cfg.border}` }}
+                          aria-hidden="true"
+                        >
+                          <Icon className="w-3 h-3" style={{ color: cfg.color }} />
+                        </div>
+
+                        <div className="flex items-start justify-between gap-3 mb-1 flex-wrap">
+                          <h3 className="font-display font-semibold text-white text-base">
+                            {item.institution}
+                          </h3>
+                          <span
+                            className="text-[0.65rem] font-mono px-2.5 py-1 rounded-full"
+                            style={{
+                              color: cfg.color,
+                              background: cfg.bg,
+                              border: `1px solid ${cfg.border}`,
+                            }}
+                          >
+                            {item.type}
+                          </span>
+                        </div>
+                        <p className="text-sm font-medium mb-1" style={{ color: cfg.color }}>
+                          {item.degree}
+                        </p>
+                        <p className="text-xs font-mono text-[#3d4452] mb-3">{item.period}</p>
+                        <p className="text-sm text-[#687081] leading-relaxed">{item.description}</p>
+                        {item.certificateLink && (
+                          <a
+                            href={item.certificateLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`View certificate for ${item.degree}`}
+                            className="inline-flex items-center gap-1.5 mt-3 text-xs font-mono text-[#687081] hover:text-white transition-colors"
+                          >
+                            <ExternalLink className="w-3 h-3" aria-hidden="true" />
+                            View Certificate
+                          </a>
+                        )}
+                      </motion.article>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════
+            PROJECTS
+        ═══════════════════════════════════════ */}
+        <section
+          id="projects"
+          aria-labelledby="projects-heading"
+          className="py-24 relative z-10"
+        >
+          <div className="container mx-auto px-4">
+            <SectionHeader
+              eyebrow="Work"
+              title={
+                <>
+                  Things I've <span className="text-gradient-primary">Built</span>
+                </>
+              }
+              subtitle="Security tools, web applications, and hardware experiments."
+            />
+            <h2 id="projects-heading" className="sr-only">Projects</h2>
+
+            {projects.length === 0 ? (
+              <p className="text-center text-[#687081] py-10">No projects yet.</p>
+            ) : (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {projects.map((project, i) => (
+                  <motion.div
+                    key={project._id}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, margin: '-60px' }}
+                    variants={fadeUp}
+                    custom={i * 0.07}
+                  >
+                    <ProjectCard
+                      _id={project._id}
+                      title={project.title}
+                      description={project.description}
+                      technologies={project.technologies}
+                      liveUrl={project.liveUrl}
+                      githubUrl={project.githubUrl}
+                      image={project.image}
+                      category={project.category}
+                    />
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════
+            EXPERIENCE
+        ═══════════════════════════════════════ */}
+        <section
+          id="experience"
+          aria-labelledby="experience-heading"
+          className="py-24 relative z-10"
+          style={{ background: 'rgba(124,106,247,0.02)' }}
+        >
+          <div className="container mx-auto px-4">
+            <SectionHeader
+              eyebrow="Experience"
+              title={
+                <>
+                  Professional <span className="text-gradient-teal">Timeline</span>
+                </>
+              }
+              subtitle="Roles, engagements, and contributions over the years."
+            />
+            <h2 id="experience-heading" className="sr-only">Professional Experience</h2>
+
+            {experiences.length === 0 ? (
+              <p className="text-center text-[#687081] py-10">No experience entries yet.</p>
+            ) : (
+              <div className="max-w-3xl mx-auto">
+                {experiences.map((exp) => (
+                  <ExperienceCard
+                    key={exp._id}
+                    _id={exp._id}
+                    company={exp.company}
+                    position={exp.position}
+                    location={exp.location}
+                    startDate={exp.startDate}
+                    endDate={exp.endDate}
+                    description={exp.description}
+                    achievements={exp.achievements}
+                    technologies={exp.technologies}
+                    isCurrentJob={exp.isCurrentJob}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════
+            COMMUNITY — standalone section
+        ═══════════════════════════════════════ */}
+        <section
+          id="community"
+          aria-labelledby="community-heading"
+          className="py-24 relative z-10"
+        >
+          <div className="container mx-auto px-4">
+            <SectionHeader
+              eyebrow="Community"
+              title={
+                <>
+                  Giving Back to <span className="text-gradient-teal">Security</span>
+                </>
+              }
+              subtitle="Volunteering, teaching, and building a more inclusive security ecosystem."
+            />
+            <h2 id="community-heading" className="sr-only">Community and Volunteering</h2>
+
+            <div className="max-w-4xl mx-auto grid md:grid-cols-5 gap-5">
+              {/* SecurityBoat main card */}
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeUp}
+                custom={0}
+                className="md:col-span-3 glass rounded-2xl p-8 glass-teal-hover"
+              >
+                <div className="flex items-start gap-4 mb-6">
+                  <div
+                    className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style={{ background: 'rgba(62,207,179,0.1)', border: '1px solid rgba(62,207,179,0.2)' }}
+                    aria-hidden="true"
+                  >
+                    <Globe className="w-6 h-6" style={{ color: '#3ecfb3' }} />
+                  </div>
+                  <div>
+                    <h3 className="font-display font-bold text-lg text-white mb-1">
+                      SecurityBoat Community
+                    </h3>
+                    <p className="text-sm text-[#3ecfb3] font-mono">Cybersecurity Volunteer</p>
+                  </div>
+                </div>
+                <p className="text-sm text-[#687081] leading-relaxed mb-6">
+                  Active volunteer at SecurityBoat — a cybersecurity learning community dedicated to
+                  making offensive and defensive security knowledge accessible. Contributing through
+                  workshops, content creation, and mentoring aspiring security professionals.
+                </p>
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {['Workshops', 'Content Creation', 'Mentoring', 'CTF Events'].map((tag) => (
+                    <span
+                      key={tag}
+                      className="text-xs font-mono px-3 py-1 rounded-full"
+                      style={{
+                        color: '#3ecfb3',
+                        background: 'rgba(62,207,179,0.08)',
+                        border: '1px solid rgba(62,207,179,0.2)',
+                      }}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <a
+                  href="https://securityboat.net"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Visit SecurityBoat Community website"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-[#3ecfb3] hover:underline"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
+                  Visit SecurityBoat
+                </a>
+              </motion.div>
+
+              {/* Side cards */}
+              <div className="md:col-span-2 flex flex-col gap-5">
+                <motion.div
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                  variants={fadeUp}
+                  custom={0.1}
+                  className="glass rounded-2xl p-6 glass-hover flex-1"
+                >
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
+                    style={{ background: 'rgba(240,107,139,0.1)', border: '1px solid rgba(240,107,139,0.2)' }}
+                    aria-hidden="true"
+                  >
+                    <Heart className="w-5 h-5" style={{ color: '#f06b8b' }} />
+                  </div>
+                  <h3 className="font-display font-semibold text-white text-sm mb-2">
+                    Why I Volunteer
+                  </h3>
+                  <p className="text-xs text-[#687081] leading-relaxed">
+                    Security knowledge hoarded is security knowledge wasted. Sharing is how the
+                    field moves forward.
+                  </p>
+                </motion.div>
+
+                <motion.div
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                  variants={fadeUp}
+                  custom={0.18}
+                  className="glass rounded-2xl p-6 glass-hover flex-1"
+                >
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
+                    style={{ background: 'rgba(124,106,247,0.1)', border: '1px solid rgba(124,106,247,0.2)' }}
+                    aria-hidden="true"
+                  >
+                    <Users className="w-5 h-5" style={{ color: '#7c6af7' }} />
+                  </div>
+                  <h3 className="font-display font-semibold text-white text-sm mb-2">
+                    Community First
+                  </h3>
+                  <p className="text-xs text-[#687081] leading-relaxed">
+                    Helping newcomers navigate the overwhelming landscape of cybersecurity — one
+                    resource, one conversation at a time.
+                  </p>
+                </motion.div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════
+            BLOG & PUBLICATIONS
+        ═══════════════════════════════════════ */}
+        <section
+          id="blog"
+          aria-labelledby="blog-heading"
+          className="py-24 relative z-10"
+          ref={blogSectionRef as React.RefObject<HTMLElement>}
+          style={{ background: 'rgba(124,106,247,0.02)' }}
+        >
+          <div className="container mx-auto px-4">
+            <SectionHeader
+              eyebrow="Writings"
+              title={
+                <>
+                  From the <span className="text-gradient-amber">Notebook</span>
+                </>
+              }
+              subtitle="Security writeups, red team notes, and the occasional poem."
+            />
+            <h2 id="blog-heading" className="sr-only">Blog and Publications</h2>
+
+            {/* Publications highlight */}
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={fadeUp}
+              className="glass rounded-2xl p-6 mb-12 glass-amber-hover max-w-3xl mx-auto"
+            >
+              <div className="flex items-start gap-4">
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'rgba(232,164,74,0.1)', border: '1px solid rgba(232,164,74,0.2)' }}
+                  aria-hidden="true"
+                >
+                  <BookOpen className="w-5 h-5" style={{ color: '#e8a44a' }} />
+                </div>
+                <div className="flex-1">
+                  <p className="font-mono text-[0.65rem] uppercase tracking-widest text-[#e8a44a] mb-1">
+                    Published Works
+                  </p>
+                  <h3 className="font-display font-semibold text-white text-base mb-2">
+                    Poetry & Writing on Amazon
+                  </h3>
+                  <p className="text-sm text-[#687081] leading-relaxed">
+                    Published poet and author. Available on Amazon — where security meets
+                    the human condition, in verse.
+                  </p>
+                </div>
+                <a
+                  href="https://www.amazon.in/stores/Garv-Kamra/author/B0FJWL3F7D/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="View Garv Kamra's books on Amazon"
+                  className="inline-flex items-center gap-1.5 text-xs font-mono flex-shrink-0 mt-1 px-3 py-2 rounded-lg transition-colors"
+                  style={{
+                    color: '#e8a44a',
+                    background: 'rgba(232,164,74,0.06)',
+                    border: '1px solid rgba(232,164,74,0.2)',
+                  }}
+                >
+                  <ExternalLink className="w-3 h-3" aria-hidden="true" />
+                  View Books
+                </a>
+              </div>
+            </motion.div>
+
+            {/* Blog posts grid */}
+            {(() => {
+              const posts = Array.isArray(blogPosts) ? blogPosts : [];
+              if (posts.length === 0) {
+                return (
+                  <p className="text-center text-[#687081] py-10 glass rounded-xl">
+                    No blog posts yet. Check back soon.
+                  </p>
+                );
+              }
+              return (
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {posts
+                    .filter((p) => p && typeof p === 'object')
+                    .map((post, i) => (
+                      <motion.div
+                        key={post._id ?? `post-${i}`}
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, margin: '-60px' }}
+                        variants={fadeUp}
+                        custom={i * 0.07}
+                      >
+                        <BlogCard
+                          post={post}
+                          onClick={() => {
+                            setSelectedBlog(post);
+                            setIsBlogModalOpen(true);
+                          }}
+                        />
+                      </motion.div>
+                    ))}
+                </div>
+              );
+            })()}
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════
+            TESTIMONIALS
+        ═══════════════════════════════════════ */}
+        <FeedbackSection reviews={reviews} />
+
+        {/* ═══════════════════════════════════════
+            CONTACT
+        ═══════════════════════════════════════ */}
+        <section
+          id="contact"
+          aria-labelledby="contact-heading"
+          className="py-24 relative z-10"
+        >
+          <div className="container mx-auto px-4">
+            <SectionHeader
+              eyebrow="Contact"
+              title={
+                <>
+                  Let's <span className="text-gradient-primary">Connect</span>
+                </>
+              }
+              subtitle="VAPT engagement, project collaboration, or just a conversation — reach out."
+            />
+            <h2 id="contact-heading" className="sr-only">Contact Garv Kamra</h2>
+
+            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              {/* Form */}
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeLeft}
+                className="glass rounded-2xl p-7"
+              >
+                <h3 className="font-display font-semibold text-base text-white mb-6">
+                  Send a Message
+                </h3>
+                <form onSubmit={handleSubmit} noValidate aria-label="Contact form">
+                  <div className="space-y-4 mb-5">
+                    <div className="form-floating">
+                      <input
+                        type="text"
+                        id="contact-name"
+                        name="name"
+                        placeholder=" "
+                        value={formData.name}
+                        onChange={handleChange}
+                        required
+                        aria-label="Your name"
+                        autoComplete="name"
+                      />
+                      <label htmlFor="contact-name">Your Name</label>
+                    </div>
+                    <div className="form-floating">
+                      <input
+                        type="email"
+                        id="contact-email"
+                        name="email"
+                        placeholder=" "
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
+                        aria-label="Email address"
+                        autoComplete="email"
+                      />
+                      <label htmlFor="contact-email">Email Address</label>
+                    </div>
+                    <div className="form-floating">
+                      <input
+                        type="text"
+                        id="contact-subject"
+                        name="subject"
+                        placeholder=" "
+                        value={formData.subject}
+                        onChange={handleChange}
+                        required
+                        aria-label="Subject"
+                      />
+                      <label htmlFor="contact-subject">Subject</label>
+                    </div>
+                    <div className="form-floating">
+                      <textarea
+                        id="contact-message"
+                        name="message"
+                        rows={4}
+                        placeholder=" "
+                        value={formData.message}
+                        onChange={handleChange}
+                        required
+                        aria-label="Your message"
+                        style={{ resize: 'none' }}
+                      />
+                      <label htmlFor="contact-message">Your Message</label>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isSending}
+                    aria-label={isSending ? 'Sending message…' : 'Send message'}
+                    className="btn-primary w-full justify-center disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {isSending ? (
+                      <>
+                        <span
+                          className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin"
+                          aria-hidden="true"
+                        />
+                        Sending…
+                      </>
+                    ) : (
+                      <>
+                        Send Message
+                        <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                      </>
+                    )}
+                  </button>
+                </form>
+              </motion.div>
+
+              {/* Info */}
+              <motion.div
+                initial={{ opacity: 0, x: 24 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.55 }}
+                className="flex flex-col gap-5"
+              >
+                <div className="glass rounded-2xl p-7">
+                  <h3 className="font-display font-semibold text-base text-white mb-5">
+                    Contact Information
+                  </h3>
+                  <address className="not-italic space-y-3">
+                    {[
+                      {
+                        icon: Mail,
+                        href: 'mailto:securegarv@gmail.com',
+                        label: 'securegarv@gmail.com',
+                        sublabel: 'Preferred contact',
+                        external: false,
+                      },
+                      {
+                        icon: Github,
+                        href: 'https://github.com/0xgrv',
+                        label: 'github.com/0xgrv',
+                        sublabel: 'Open source',
+                        external: true,
+                      },
+                      {
+                        icon: Linkedin,
+                        href: 'https://www.linkedin.com/in/garvkamra/',
+                        label: 'linkedin.com/in/garvkamra',
+                        sublabel: 'Professional',
+                        external: true,
+                      },
+                    ].map(({ icon: Icon, href, label, sublabel, external }) => (
+                      <a
+                        key={href}
+                        href={href}
+                        aria-label={sublabel ? `${label} — ${sublabel}` : label}
+                        {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                        className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/4 transition-colors group"
+                      >
+                        <div
+                          className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+                          style={{ background: 'rgba(124,106,247,0.1)', border: '1px solid rgba(124,106,247,0.18)' }}
+                          aria-hidden="true"
+                        >
+                          <Icon className="w-4 h-4 text-[#7c6af7]" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-white group-hover:text-[#7c6af7] transition-colors">
+                            {label}
+                          </p>
+                          {sublabel && (
+                            <p className="text-xs text-[#3d4452] font-mono">{sublabel}</p>
+                          )}
+                        </div>
+                      </a>
+                    ))}
+                  </address>
+                </div>
+
+                {/* Calendly */}
+                <div className="glass rounded-2xl p-7">
+                  <div className="flex items-center gap-3 mb-3">
+                    <CalendarCheck className="w-5 h-5 text-[#7c6af7]" aria-hidden="true" />
+                    <h3 className="font-display font-semibold text-base text-white">
+                      Schedule a Call
+                    </h3>
+                  </div>
+                  <p className="text-sm text-[#687081] mb-4 leading-relaxed">
+                    Have a security project or want to collaborate? Book a slot directly.
+                  </p>
+                  <a
+                    href="https://calendly.com/garvkamra24/lets-connect"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Book a call on Calendly"
+                    className="btn-ghost w-full justify-center"
+                  >
+                    Book on Calendly
+                    <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
+                  </a>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* ═══════════════════════════════════════
+          FOOTER
+      ═══════════════════════════════════════ */}
+      <footer
+        aria-label="Site footer"
+        className="relative z-10 border-t border-white/5 pt-14 pb-8"
+      >
+        <div className="container mx-auto px-4">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-10 mb-12">
+            {/* Brand */}
+            <div>
+              <p className="font-mono font-bold text-lg mb-3">
+                <span className="text-[#7c6af7]">.</span>SecureGarv
+              </p>
+              <p className="text-sm text-[#687081] leading-relaxed mb-5 max-w-xs">
+                Security Analyst · VAPT · Red Team<br />
+                Poet · Author · SecurityBoat Volunteer
+              </p>
+              <div className="flex items-center gap-2">
+                {[
+                  { icon: Github, href: 'https://github.com/0xgrv/', label: 'GitHub' },
+                  { icon: Linkedin, href: 'https://www.linkedin.com/in/garvkamra/', label: 'LinkedIn' },
+                  { icon: Briefcase, href: 'https://www.amazon.in/stores/Garv-Kamra/author/B0FJWL3F7D/', label: 'Books' },
+                  { icon: Mail, href: 'mailto:securegarv@gmail.com', label: 'Email' },
+                ].map(({ icon: Icon, href, label }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    aria-label={label}
+                    target={href.startsWith('mailto') ? undefined : '_blank'}
+                    rel={href.startsWith('mailto') ? undefined : 'noopener noreferrer'}
+                    className="w-8 h-8 rounded-lg border border-white/8 flex items-center justify-center text-[#687081] hover:text-white hover:border-white/20 transition-all"
+                  >
+                    <Icon className="w-3.5 h-3.5" aria-hidden="true" />
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* Navigation */}
+            <nav aria-label="Footer navigation">
+              <p className="font-mono text-[0.65rem] uppercase tracking-widest text-[#3d4452] mb-4">
+                Navigate
+              </p>
+              <ul className="space-y-2">
+                {[
+                  ['#about', 'About'],
+                  ['#projects', 'Projects'],
+                  ['#experience', 'Experience'],
+                  ['#community', 'Community'],
+                  ['#blog', 'Blog'],
+                  ['#contact', 'Contact'],
+                ].map(([href, label]) => (
+                  <li key={href}>
+                    <a
+                      href={href}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        document.getElementById(href.slice(1))?.scrollIntoView({ behavior: 'smooth' });
+                      }}
+                      className="text-sm text-[#687081] hover:text-white transition-colors"
+                    >
+                      {label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+
+            {/* Currently */}
+            <div>
+              <p className="font-mono text-[0.65rem] uppercase tracking-widest text-[#3d4452] mb-4">
+                Currently
+              </p>
+              <ul className="space-y-2">
+                {[
+                  { icon: Terminal, text: 'Learning Red Teaming' },
+                  { icon: Cpu, text: 'Hardware Security Research' },
+                  { icon: BookOpen, text: 'Writing & Publishing' },
+                  { icon: Globe, text: 'Volunteering @ SecurityBoat' },
+                ].map(({ icon: Icon, text }) => (
+                  <li key={text} className="flex items-center gap-2 text-sm text-[#687081]">
+                    <Icon className="w-3.5 h-3.5 text-[#3d4452] flex-shrink-0" aria-hidden="true" />
+                    {text}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom bar */}
+          <div className="pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#3d4452] font-mono">
+            <p>© {new Date().getFullYear()} Garv Kamra. All rights reserved.</p>
+            <p className="flex items-center gap-1">
+              Built with
+              <Heart className="w-3 h-3 text-[#f06b8b]" aria-hidden="true" />
+              and a lot of coffee.
+            </p>
+          </div>
+        </div>
+      </footer>
+
+      {/* Blog modal */}
+      {isBlogModalOpen && selectedBlog && (
+        <BlogModal
+          post={selectedBlog}
+          onClose={() => {
+            setIsBlogModalOpen(false);
+            setSelectedBlog(null);
+          }}
+        />
+      )}
+    </div>
+  );
+};
 
 export default Index;
