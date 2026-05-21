@@ -82,9 +82,8 @@ const SectionHeader = ({
     <h2 className="section-heading mb-4">{title}</h2>
     {subtitle && (
       <p
-        className={`text-[#687081] text-sm max-w-xl leading-relaxed ${
-          centered ? 'mx-auto' : ''
-        }`}
+        className={`text-[#687081] text-sm max-w-xl leading-relaxed ${centered ? 'mx-auto' : ''
+          }`}
       >
         {subtitle}
       </p>
@@ -95,10 +94,10 @@ const SectionHeader = ({
 // ─── Education helpers ────────────────────────────────────────────────────────
 
 const EDU_ICON_MAP = {
-  education:     { icon: GraduationCap, color: '#a78bfa', bg: 'rgba(167,139,250,0.1)', border: 'rgba(167,139,250,0.2)' },
-  certification: { icon: Shield,        color: '#3ecfb3', bg: 'rgba(62,207,179,0.1)',  border: 'rgba(62,207,179,0.2)' },
-  achievement:   { icon: Rocket,        color: '#e8a44a', bg: 'rgba(232,164,74,0.1)',  border: 'rgba(232,164,74,0.2)' },
-  publication:   { icon: BookOpen,      color: '#f06b8b', bg: 'rgba(240,107,139,0.1)', border: 'rgba(240,107,139,0.2)' },
+  education: { icon: GraduationCap, color: '#a78bfa', bg: 'rgba(167,139,250,0.1)', border: 'rgba(167,139,250,0.2)' },
+  certification: { icon: Shield, color: '#3ecfb3', bg: 'rgba(62,207,179,0.1)', border: 'rgba(62,207,179,0.2)' },
+  achievement: { icon: Rocket, color: '#e8a44a', bg: 'rgba(232,164,74,0.1)', border: 'rgba(232,164,74,0.2)' },
+  publication: { icon: BookOpen, color: '#f06b8b', bg: 'rgba(240,107,139,0.1)', border: 'rgba(240,107,139,0.2)' },
 } as const;
 
 type EduType = keyof typeof EDU_ICON_MAP;
@@ -155,11 +154,11 @@ const Index = () => {
   // Education counts & filtered list
   const eduCounts = useMemo(
     () => ({
-      all:           education.length,
-      education:     education.filter((e) => e.type === 'education').length,
+      all: education.length,
+      education: education.filter((e) => e.type === 'education').length,
       certification: education.filter((e) => e.type === 'certification').length,
-      achievement:   education.filter((e) => e.type === 'achievement').length,
-      publication:   education.filter((e) => e.type === 'publication').length,
+      achievement: education.filter((e) => e.type === 'achievement').length,
+      publication: education.filter((e) => e.type === 'publication').length,
     }),
     [education],
   );
@@ -202,9 +201,9 @@ const Index = () => {
       return;
     }
     const blockedDomains = [
-      'tempmail.com','mailinator.com','guerrillamail.com',
-      '10minutemail.com','throwawaymail.com','fakeinbox.com',
-      'yopmail.com','trashmail.com','maildrop.cc',
+      'tempmail.com', 'mailinator.com', 'guerrillamail.com',
+      '10minutemail.com', 'throwawaymail.com', 'fakeinbox.com',
+      'yopmail.com', 'trashmail.com', 'maildrop.cc',
     ];
     const domain = formData.email.split('@')[1];
     if (blockedDomains.some((d) => domain.includes(d))) {
@@ -542,18 +541,17 @@ const Index = () => {
                     Beyond the Terminal
                   </h3>
                   <p className="text-sm text-[#687081] leading-relaxed max-w-3xl">
-                    When I'm not dissecting systems, I write. Published poet and author on Amazon —
-                    words are just another language for understanding the world. I also volunteer with
-                    the{' '}
+                    When I am not testing APIs or staring at Burpsuite, I write. I have published a few poetry collections on Amazon because words have always been the other side of how I think. Not everything translates to a terminal.
+                    I also volunteer with the{' '}
                     <a
-                      href="https://securityboat.net"
+                      href="https://securityboat.net/chapter/bengaluru/"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-[#3ecfb3] hover:underline"
                     >
                       SecurityBoat Community
                     </a>
-                    , making cybersecurity accessible to the next generation of defenders.
+                    , helping run monthly cybersecurity meetups and handling the behind the scenes stuff. It is one of those things I genuinely enjoy doing.
                   </p>
                 </div>
                 <a
