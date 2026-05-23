@@ -121,6 +121,7 @@ const Index = () => {
     skills,
     blogPosts,
     reviews,
+    community,
     loading,
   } = usePortfolioData();
 
@@ -322,8 +323,8 @@ const Index = () => {
                   initial="hidden"
                   animate="visible"
                   variants={fadeUp}
-                  className="font-display font-bold leading-[1.0] tracking-tight mb-6"
-                  style={{ fontSize: 'clamp(3rem, 7vw, 5.5rem)' }}
+                  className="font-display font-bold leading-[1.05] tracking-tight mb-6"
+                  style={{ fontSize: 'clamp(2.6rem, 9vw, 5.5rem)' }}
                 >
                   <span className="block text-[#e8edf5]">Garv</span>
                   <span className="block text-gradient-hero">Kamra</span>
@@ -351,15 +352,17 @@ const Index = () => {
                   </motion.div>
                 )}
 
-                <motion.p
-                  custom={0.22}
-                  initial="hidden"
-                  animate="visible"
-                  variants={fadeUp}
-                  className="text-[#687081] text-base leading-relaxed max-w-lg mb-8"
-                >
-                  {heroContent.heroParagraph}
-                </motion.p>
+                {(heroContent.heroParagraph) && (
+                  <motion.p
+                    custom={0.22}
+                    initial="hidden"
+                    animate="visible"
+                    variants={fadeUp}
+                    className="text-[#687081] text-base leading-relaxed max-w-lg mb-8"
+                  >
+                    {heroContent.heroParagraph}
+                  </motion.p>
+                )}
 
                 {/* CTAs */}
                 <motion.div
@@ -394,27 +397,24 @@ const Index = () => {
                   </a>
                 </motion.div>
 
-                {/* Role badge strip */}
-                <motion.div
-                  custom={0.34}
-                  initial="hidden"
-                  animate="visible"
-                  variants={fadeUp}
-                  className="flex flex-wrap gap-2"
-                  aria-label="Key identities"
-                >
-                  {[
-                    { dot: '#3ecfb3', label: 'VAPT Analyst' },
-                    { dot: '#7c6af7', label: 'Red Team Learner' },
-                    { dot: '#e8a44a', label: 'Poet & Author' },
-                    { dot: '#f06b8b', label: 'SecurityBoat Volunteer' },
-                  ].map(({ dot, label }) => (
-                    <span key={label} className="hero-role-badge">
-                      <span className="dot" style={{ background: dot }} aria-hidden="true" />
-                      {label}
-                    </span>
-                  ))}
-                </motion.div>
+                {/* Role badge strip — dynamic from backend */}
+                {heroContent.heroTags && heroContent.heroTags.length > 0 && (
+                  <motion.div
+                    custom={0.34}
+                    initial="hidden"
+                    animate="visible"
+                    variants={fadeUp}
+                    className="flex flex-wrap gap-2"
+                    aria-label="Key identities"
+                  >
+                    {heroContent.heroTags.map(({ label, color }) => (
+                      <span key={label} className="hero-role-badge">
+                        <span className="dot" style={{ background: color }} aria-hidden="true" />
+                        {label}
+                      </span>
+                    ))}
+                  </motion.div>
+                )}
               </div>
 
               {/* Avatar column */}
@@ -526,21 +526,21 @@ const Index = () => {
               viewport={{ once: true }}
               variants={fadeUp}
               custom={0.2}
-              className="glass rounded-2xl p-7 mb-4 glass-amber-hover"
+              className="glass rounded-2xl p-7 glass-amber-hover"
             >
-              <div className="flex items-start gap-5">
+              <div className="flex flex-col sm:flex-row items-start gap-5">
                 <div
-                  className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5"
+                  className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
                   style={{ background: 'rgba(232,164,74,0.1)' }}
                   aria-hidden="true"
                 >
                   <BookOpen className="w-5 h-5" style={{ color: '#e8a44a' }} />
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 min-w-0 w-full">
                   <h3 className="font-display text-base font-semibold mb-2 text-white">
                     Beyond the Terminal
                   </h3>
-                  <p className="text-sm text-[#687081] leading-relaxed max-w-3xl">
+                  <p className="text-sm text-[#687081] leading-relaxed">
                     When I am not testing APIs or staring at Burpsuite, I write. I have published a few poetry collections on Amazon because words have always been the other side of how I think. Not everything translates to a terminal.
                     I also volunteer with the{' '}
                     <a
@@ -559,14 +559,13 @@ const Index = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="View Amazon author page"
-                  className="flex items-center gap-1.5 text-xs font-mono text-[#687081] hover:text-white transition-colors flex-shrink-0 mt-1"
+                  className="flex items-center gap-1.5 text-xs font-mono text-[#687081] hover:text-white transition-colors flex-shrink-0 sm:mt-1"
                 >
                   <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
                   Author Page
                 </a>
               </div>
             </motion.div>
-
             {/* Journey */}
             {heroContent.about?.myJourney && (
               <motion.div
@@ -855,114 +854,180 @@ const Index = () => {
             />
             <h2 id="community-heading" className="sr-only">Community and Volunteering</h2>
 
-            <div className="max-w-4xl mx-auto grid md:grid-cols-5 gap-5">
-              {/* SecurityBoat main card */}
-              <motion.div
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={fadeUp}
-                custom={0}
-                className="md:col-span-3 glass rounded-2xl p-8 glass-teal-hover"
-              >
-                <div className="flex items-start gap-4 mb-6">
-                  <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{ background: 'rgba(62,207,179,0.1)', border: '1px solid rgba(62,207,179,0.2)' }}
-                    aria-hidden="true"
+            {/* Community layout — always shows both side blurb cards (like About section bento) */}
+            {(() => {
+              const featured = community.find((c) => c.isFeatured) ?? community[0] ?? null;
+              const sidecards = featured
+                ? community.filter((c) => c._id !== featured._id).slice(0, 2)
+                : [];
+
+              return (
+                <div className="max-w-4xl mx-auto grid md:grid-cols-5 gap-5">
+                  {/* Primary card */}
+                  <motion.div
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={fadeUp}
+                    custom={0}
+                    className="md:col-span-3 glass rounded-2xl p-8 glass-teal-hover"
                   >
-                    <Globe className="w-6 h-6" style={{ color: '#3ecfb3' }} />
-                  </div>
-                  <div>
-                    <h3 className="font-display font-bold text-lg text-white mb-1">
-                      SecurityBoat Community
-                    </h3>
-                    <p className="text-sm text-[#3ecfb3] font-mono">Cybersecurity Volunteer</p>
+                    <div className="flex items-start gap-4 mb-6">
+                      <div
+                        className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+                        style={{ background: 'rgba(62,207,179,0.1)', border: '1px solid rgba(62,207,179,0.2)' }}
+                        aria-hidden="true"
+                      >
+                        <Globe className="w-6 h-6" style={{ color: '#3ecfb3' }} />
+                      </div>
+                      <div>
+                        <h3 className="font-display font-bold text-lg text-white mb-1">
+                          {featured?.organisation ?? 'SecurityBoat Community'}
+                        </h3>
+                        <p className="text-sm text-[#3ecfb3] font-mono">
+                          {featured?.role ?? 'Cybersecurity Volunteer'}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-[#687081] leading-relaxed mb-6">
+                      {featured?.description ??
+                        'Active volunteer contributing through workshops, content creation, and mentoring aspiring security professionals.'}
+                    </p>
+                    {(featured?.activities ?? []).length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-6" aria-label="Activities">
+                        {(featured!.activities).map((tag) => (
+                          <span
+                            key={tag}
+                            className="text-xs font-mono px-3 py-1 rounded-full"
+                            style={{
+                              color: '#3ecfb3',
+                              background: 'rgba(62,207,179,0.08)',
+                              border: '1px solid rgba(62,207,179,0.2)',
+                            }}
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    {featured?.websiteUrl && (
+                      <a
+                        href={featured.websiteUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`Visit ${featured.organisation} website`}
+                        className="inline-flex items-center gap-2 text-sm font-medium text-[#3ecfb3] hover:underline"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
+                        Visit {featured.organisation}
+                      </a>
+                    )}
+                  </motion.div>
+
+                  {/* Side cards — always two, either from extra entries or default blurbs */}
+                  <div className="md:col-span-2 flex flex-col gap-5">
+                    {sidecards.length >= 1 ? (
+                      <motion.div
+                        key={sidecards[0]._id}
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                        variants={fadeUp}
+                        custom={0.08}
+                        className="glass rounded-2xl p-6 glass-hover flex-1"
+                      >
+                        <div
+                          className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
+                          style={{ background: 'rgba(124,106,247,0.1)', border: '1px solid rgba(124,106,247,0.2)' }}
+                          aria-hidden="true"
+                        >
+                          <Users className="w-5 h-5" style={{ color: '#7c6af7' }} />
+                        </div>
+                        <h3 className="font-display font-semibold text-white text-sm mb-1">{sidecards[0].organisation}</h3>
+                        <p className="text-xs text-[#3ecfb3] font-mono mb-2">{sidecards[0].role}</p>
+                        <p className="text-xs text-[#687081] leading-relaxed">
+                          {sidecards[0].whyVolunteer || sidecards[0].description}
+                        </p>
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                        variants={fadeUp}
+                        custom={0.1}
+                        className="glass rounded-2xl p-6 glass-hover flex-1"
+                      >
+                        <div
+                          className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
+                          style={{ background: 'rgba(240,107,139,0.1)', border: '1px solid rgba(240,107,139,0.2)' }}
+                          aria-hidden="true"
+                        >
+                          <Heart className="w-5 h-5" style={{ color: '#f06b8b' }} />
+                        </div>
+                        <h3 className="font-display font-semibold text-white text-sm mb-2">
+                          {featured?.whyVolunteer ? 'Why I Volunteer' : 'Open Knowledge'}
+                        </h3>
+                        <p className="text-xs text-[#687081] leading-relaxed">
+                          {featured?.whyVolunteer ||
+                            'Security knowledge hoarded is security knowledge wasted. Sharing is how the field moves forward.'}
+                        </p>
+                      </motion.div>
+                    )}
+
+                    {sidecards.length >= 2 ? (
+                      <motion.div
+                        key={sidecards[1]._id}
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                        variants={fadeUp}
+                        custom={0.16}
+                        className="glass rounded-2xl p-6 glass-hover flex-1"
+                      >
+                        <div
+                          className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
+                          style={{ background: 'rgba(124,106,247,0.1)', border: '1px solid rgba(124,106,247,0.2)' }}
+                          aria-hidden="true"
+                        >
+                          <Users className="w-5 h-5" style={{ color: '#7c6af7' }} />
+                        </div>
+                        <h3 className="font-display font-semibold text-white text-sm mb-1">{sidecards[1].organisation}</h3>
+                        <p className="text-xs text-[#3ecfb3] font-mono mb-2">{sidecards[1].role}</p>
+                        <p className="text-xs text-[#687081] leading-relaxed">
+                          {sidecards[1].whyVolunteer || sidecards[1].description}
+                        </p>
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                        variants={fadeUp}
+                        custom={0.18}
+                        className="glass rounded-2xl p-6 glass-hover flex-1"
+                      >
+                        <div
+                          className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
+                          style={{ background: 'rgba(124,106,247,0.1)', border: '1px solid rgba(124,106,247,0.2)' }}
+                          aria-hidden="true"
+                        >
+                          <Users className="w-5 h-5" style={{ color: '#7c6af7' }} />
+                        </div>
+                        <h3 className="font-display font-semibold text-white text-sm mb-2">
+                          Community First
+                        </h3>
+                        <p className="text-xs text-[#687081] leading-relaxed">
+                          Helping newcomers navigate the overwhelming landscape of cybersecurity — one
+                          resource, one conversation at a time.
+                        </p>
+                      </motion.div>
+                    )}
                   </div>
                 </div>
-                <p className="text-sm text-[#687081] leading-relaxed mb-6">
-                  Active volunteer at SecurityBoat — a cybersecurity learning community dedicated to
-                  making offensive and defensive security knowledge accessible. Contributing through
-                  workshops, content creation, and mentoring aspiring security professionals.
-                </p>
-                <div className="flex flex-wrap gap-2 mb-6">
-                  {['Workshops', 'Content Creation', 'Mentoring', 'CTF Events'].map((tag) => (
-                    <span
-                      key={tag}
-                      className="text-xs font-mono px-3 py-1 rounded-full"
-                      style={{
-                        color: '#3ecfb3',
-                        background: 'rgba(62,207,179,0.08)',
-                        border: '1px solid rgba(62,207,179,0.2)',
-                      }}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-                <a
-                  href="https://securityboat.net"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Visit SecurityBoat Community website"
-                  className="inline-flex items-center gap-2 text-sm font-medium text-[#3ecfb3] hover:underline"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
-                  Visit SecurityBoat
-                </a>
-              </motion.div>
+              );
+            })()}
 
-              {/* Side cards */}
-              <div className="md:col-span-2 flex flex-col gap-5">
-                <motion.div
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true }}
-                  variants={fadeUp}
-                  custom={0.1}
-                  className="glass rounded-2xl p-6 glass-hover flex-1"
-                >
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
-                    style={{ background: 'rgba(240,107,139,0.1)', border: '1px solid rgba(240,107,139,0.2)' }}
-                    aria-hidden="true"
-                  >
-                    <Heart className="w-5 h-5" style={{ color: '#f06b8b' }} />
-                  </div>
-                  <h3 className="font-display font-semibold text-white text-sm mb-2">
-                    Why I Volunteer
-                  </h3>
-                  <p className="text-xs text-[#687081] leading-relaxed">
-                    Security knowledge hoarded is security knowledge wasted. Sharing is how the
-                    field moves forward.
-                  </p>
-                </motion.div>
-
-                <motion.div
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true }}
-                  variants={fadeUp}
-                  custom={0.18}
-                  className="glass rounded-2xl p-6 glass-hover flex-1"
-                >
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
-                    style={{ background: 'rgba(124,106,247,0.1)', border: '1px solid rgba(124,106,247,0.2)' }}
-                    aria-hidden="true"
-                  >
-                    <Users className="w-5 h-5" style={{ color: '#7c6af7' }} />
-                  </div>
-                  <h3 className="font-display font-semibold text-white text-sm mb-2">
-                    Community First
-                  </h3>
-                  <p className="text-xs text-[#687081] leading-relaxed">
-                    Helping newcomers navigate the overwhelming landscape of cybersecurity — one
-                    resource, one conversation at a time.
-                  </p>
-                </motion.div>
-              </div>
-            </div>
           </div>
         </section>
 
@@ -988,51 +1053,54 @@ const Index = () => {
             />
             <h2 id="blog-heading" className="sr-only">Blog and Publications</h2>
 
-            {/* Publications highlight */}
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeUp}
-              className="glass rounded-2xl p-6 mb-12 glass-amber-hover max-w-3xl mx-auto"
-            >
-              <div className="flex items-start gap-4">
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                  style={{ background: 'rgba(232,164,74,0.1)', border: '1px solid rgba(232,164,74,0.2)' }}
-                  aria-hidden="true"
-                >
-                  <BookOpen className="w-5 h-5" style={{ color: '#e8a44a' }} />
+            {/* Publications highlight — dynamic from backend */}
+            {heroContent.publications?.isVisible && heroContent.publications?.url && (
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeUp}
+                className="glass rounded-2xl p-6 mb-12 glass-amber-hover max-w-3xl mx-auto"
+              >
+                <div className="flex items-start gap-4">
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style={{ background: 'rgba(232,164,74,0.1)', border: '1px solid rgba(232,164,74,0.2)' }}
+                    aria-hidden="true"
+                  >
+                    <BookOpen className="w-5 h-5" style={{ color: '#e8a44a' }} />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-mono text-[0.65rem] uppercase tracking-widest text-[#e8a44a] mb-1">
+                      Published Works
+                    </p>
+                    <h3 className="font-display font-semibold text-white text-base mb-2">
+                      {heroContent.publications.title}
+                    </h3>
+                    {heroContent.publications.description && (
+                      <p className="text-sm text-[#687081] leading-relaxed">
+                        {heroContent.publications.description}
+                      </p>
+                    )}
+                  </div>
+                  <a
+                    href={heroContent.publications.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`View ${heroContent.publications.title}`}
+                    className="inline-flex items-center gap-1.5 text-xs font-mono flex-shrink-0 mt-1 px-3 py-2 rounded-lg transition-colors"
+                    style={{
+                      color: '#e8a44a',
+                      background: 'rgba(232,164,74,0.06)',
+                      border: '1px solid rgba(232,164,74,0.2)',
+                    }}
+                  >
+                    <ExternalLink className="w-3 h-3" aria-hidden="true" />
+                    {heroContent.publications.buttonLabel || 'View Books'}
+                  </a>
                 </div>
-                <div className="flex-1">
-                  <p className="font-mono text-[0.65rem] uppercase tracking-widest text-[#e8a44a] mb-1">
-                    Published Works
-                  </p>
-                  <h3 className="font-display font-semibold text-white text-base mb-2">
-                    Poetry & Writing on Amazon
-                  </h3>
-                  <p className="text-sm text-[#687081] leading-relaxed">
-                    Published poet and author. Available on Amazon — where security meets
-                    the human condition, in verse.
-                  </p>
-                </div>
-                <a
-                  href="https://www.amazon.in/stores/Garv-Kamra/author/B0FJWL3F7D/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="View Garv Kamra's books on Amazon"
-                  className="inline-flex items-center gap-1.5 text-xs font-mono flex-shrink-0 mt-1 px-3 py-2 rounded-lg transition-colors"
-                  style={{
-                    color: '#e8a44a',
-                    background: 'rgba(232,164,74,0.06)',
-                    border: '1px solid rgba(232,164,74,0.2)',
-                  }}
-                >
-                  <ExternalLink className="w-3 h-3" aria-hidden="true" />
-                  View Books
-                </a>
-              </div>
-            </motion.div>
+              </motion.div>
+            )}
 
             {/* Blog posts grid */}
             {(() => {
@@ -1298,8 +1366,8 @@ const Index = () => {
                 <span className="text-[#7c6af7]">.</span>SecureGarv
               </p>
               <p className="text-sm text-[#687081] leading-relaxed mb-5 max-w-xs">
-                Security Analyst · VAPT · Red Team<br />
-                Poet · Author · SecurityBoat Volunteer
+                Security Analyst · VAPT · Poet <br />
+                Volunteering
               </p>
               <div className="flex items-center gap-2">
                 {[
@@ -1362,7 +1430,7 @@ const Index = () => {
                   { icon: Terminal, text: 'Learning Red Teaming' },
                   { icon: Cpu, text: 'Hardware Security Research' },
                   { icon: BookOpen, text: 'Writing & Publishing' },
-                  { icon: Globe, text: 'Volunteering @ SecurityBoat' },
+                  { icon: Globe, text: 'Volunteering @ SecurityBoat Community' },
                 ].map(({ icon: Icon, text }) => (
                   <li key={text} className="flex items-center gap-2 text-sm text-[#687081]">
                     <Icon className="w-3.5 h-3.5 text-[#3d4452] flex-shrink-0" aria-hidden="true" />

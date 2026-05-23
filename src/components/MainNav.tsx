@@ -31,15 +31,25 @@ const MainNav = () => {
     id: string,
   ) => {
     e.preventDefault();
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    const element = document.getElementById(id);
+    if (element) {
+      const offset = 80;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.scrollY - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
   };
 
   return (
     <header
       role="banner"
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-          ? 'bg-[rgba(8,12,20,0.9)] backdrop-blur-xl border-b border-white/5 py-3'
-          : 'bg-transparent py-5'
+        ? 'bg-[#0a0e1a] border-b border-white/10 py-3'  // CHANGED: Solid color instead of transparent
+        : 'bg-transparent py-5'
         }`}
     >
       <nav
@@ -60,17 +70,37 @@ const MainNav = () => {
             Open to Projects
           </div>
 
-          {/* Mobile — compact dot */}
-          <div className="sm:hidden">
+          {/* Mobile — compact dot WITH TOOLTIP */}
+          <div className="sm:hidden relative group">
             <span
               aria-label="Available for projects"
-              className="block w-2.5 h-2.5 rounded-full bg-[#3ecfb3]"
+              className="block w-2.5 h-2.5 rounded-full bg-[#3ecfb3] cursor-help"
               style={{ boxShadow: '0 0 8px rgba(62,207,179,0.7)' }}
             />
+            {/* Tooltip - positioned to the right */}
+            <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none z-50 whitespace-nowrap">
+              <div className="bg-black/90 backdrop-blur-md text-white text-xs py-1.5 px-3 rounded-lg border border-white/20 shadow-lg">
+                Available for Projects
+                <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 bg-black/90 border-l border-t border-white/20"></div>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Centre — logo + nav links */}
+        {/* MOBILE LOGO */}
+        <div className="lg:hidden absolute left-1/2 transform -translate-x-1/2">
+          <a
+            href="#home"
+            onClick={(e) => scrollToSection(e, 'home')}
+            className="font-mono font-bold text-base tracking-tight text-white hover:text-[#7c6af7] transition-colors whitespace-nowrap"
+            aria-label="SecureGarv — go to home"
+          >
+            <span className="text-[#7c6af7]">.</span>SecureGarv
+          </a>
+        </div>
+
+        {/* Desktop logo + nav (hidden on mobile) */}
         <div className="hidden lg:flex items-center gap-8 px-7 py-3 rounded-full glass">
           <a
             href="#home"
@@ -89,8 +119,8 @@ const MainNav = () => {
                 role="listitem"
                 onClick={(e) => scrollToSection(e, id)}
                 className={`relative px-3 py-1.5 text-sm rounded-lg transition-all duration-200 ${activeId === id
-                    ? 'text-white font-medium'
-                    : 'text-[#687081] hover:text-white'
+                  ? 'text-white font-medium'
+                  : 'text-[#687081] hover:text-white'
                   }`}
                 aria-current={activeId === id ? 'page' : undefined}
               >
@@ -148,7 +178,7 @@ const MainNav = () => {
         </div>
       </nav>
 
-      {/* Inline keyframe for pulse dot — avoids adding to global CSS */}
+      {/* Inline keyframe for pulse dot */}
       <style>{`
         @keyframes pulse-ring-sm {
           0%, 100% { opacity: 1; }

@@ -5,6 +5,19 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 // ─── Type Definitions ────────────────────────────────────────────────────────
 
+export interface HeroTag {
+  label: string;
+  color: string;
+}
+
+export interface Publications {
+  title: string;
+  description: string;
+  url: string;
+  buttonLabel: string;
+  isVisible: boolean;
+}
+
 export interface HeroContent {
   typewriterTexts: string[];
   heroParagraph: string;
@@ -12,6 +25,8 @@ export interface HeroContent {
     url: string;
     fileName: string;
   };
+  heroTags: HeroTag[];
+  publications: Publications;
   about?: {
     whoIAm: string;
     myExpertise: string;
@@ -89,6 +104,19 @@ export interface Review {
   websiteUrl?: string;
 }
 
+export interface CommunityEntry {
+  _id: string;
+  organisation: string;
+  role: string;
+  description: string;
+  activities: string[];
+  websiteUrl: string;
+  isFeatured: boolean;
+  isActive: boolean;
+  order: number;
+  whyVolunteer: string;
+}
+
 export interface PortfolioData {
   heroContent: HeroContent;
   education: EducationItem[];
@@ -97,6 +125,7 @@ export interface PortfolioData {
   skills: Skill[];
   blogPosts: BlogPost[];
   reviews: Review[];
+  community: CommunityEntry[];
   loading: boolean;
   error: string | null;
 }
@@ -107,6 +136,14 @@ const DEFAULT_HERO: HeroContent = {
   typewriterTexts: [],
   heroParagraph: '',
   resume: { url: '', fileName: '' },
+  heroTags: [],
+  publications: {
+    title: 'Poetry & Writing on Amazon',
+    description: '',
+    url: '',
+    buttonLabel: 'View Books',
+    isVisible: true,
+  },
   about: { whoIAm: '', myExpertise: '', myMission: '', myJourney: '' },
 };
 
@@ -120,6 +157,7 @@ export function usePortfolioData(): PortfolioData {
   const [skills, setSkills] = useState<Skill[]>([]);
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [community, setCommunity] = useState<CommunityEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -139,6 +177,7 @@ export function usePortfolioData(): PortfolioData {
           skillsRes,
           blogRes,
           reviewsRes,
+          communityRes,
         ] = await Promise.all([
           fetch(`${API_URL}/api/content`),
           fetch(`${API_URL}/api/education`),
@@ -147,6 +186,7 @@ export function usePortfolioData(): PortfolioData {
           fetch(`${API_URL}/api/skills`),
           fetch(`${API_URL}/api/blog`),
           fetch(`${API_URL}/api/reviews`),
+          fetch(`${API_URL}/api/community`),
         ]);
 
         if (!contentRes.ok)    throw new Error('Failed to fetch content');
@@ -156,8 +196,10 @@ export function usePortfolioData(): PortfolioData {
         if (!skillsRes.ok)     throw new Error('Failed to fetch skills');
         if (!blogRes.ok)       throw new Error('Failed to fetch blog posts');
         if (!reviewsRes.ok)    throw new Error('Failed to fetch reviews');
+        // community is optional — don't hard-fail if it returns 404 on first deploy
+        const communityOk = communityRes.ok;
 
-        const [content, edu, projs, exp, skillData, blogData, reviewsData] =
+        const [content, edu, projs, exp, skillData, blogData, reviewsData, communityData] =
           await Promise.all([
             contentRes.json(),
             educationRes.json(),
@@ -166,6 +208,7 @@ export function usePortfolioData(): PortfolioData {
             skillsRes.json(),
             blogRes.json(),
             reviewsRes.json(),
+            communityOk ? communityRes.json() : Promise.resolve([]),
           ]);
 
         if (cancelled) return;
@@ -176,6 +219,7 @@ export function usePortfolioData(): PortfolioData {
         setExperiences(exp);
         setSkills(skillData);
         setReviews(reviewsData?.reviews ?? []);
+        setCommunity(Array.isArray(communityData) ? communityData : []);
 
         // Normalise blog response shape
         if (Array.isArray(blogData)) {
@@ -203,6 +247,7 @@ export function usePortfolioData(): PortfolioData {
         setSkills([]);
         setBlogPosts([]);
         setReviews([]);
+        setCommunity([]);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -223,6 +268,7 @@ export function usePortfolioData(): PortfolioData {
     skills,
     blogPosts,
     reviews,
+    community,
     loading,
     error,
   };
