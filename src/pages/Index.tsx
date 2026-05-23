@@ -574,7 +574,7 @@ const Index = () => {
                 viewport={{ once: true }}
                 variants={fadeUp}
                 custom={0.24}
-                className="glass rounded-2xl p-7 glass-hover"
+                className="glass rounded-2xl p-7 glass-hover mt-6"
               >
                 <div className="flex items-start gap-5">
                   <div
