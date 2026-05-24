@@ -1,8 +1,8 @@
 {
   "redirects": [
     {
-      "source": "/blog/:slug",
-      "destination": "https://api.securegarv.me/api/blog/:slug",
+      "source": "/api/(.*)",
+      "destination": "https://api.securegarv.me/api/$1",
       "statusCode": 307
     }
   ],
@@ -16,8 +16,14 @@
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" }
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        }
       ]
     }
   ]
