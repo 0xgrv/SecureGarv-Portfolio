@@ -15,7 +15,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <HotToaster 
+      <HotToaster
         position="top-center"
         toastOptions={{
           style: {
@@ -28,7 +28,8 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/blog/:slug" element={<BlogPostWrapper />} /> 
+          <Route path="/blog/:slug" element={<BlogPostWrapper />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
