@@ -22,11 +22,11 @@ interface FeedbackSectionProps {
 }
 
 const StarRating = ({ rating }: { rating: number }) => (
-  <div className="flex gap-0.5" aria-label={`Rating: ${rating} out of 5`}>
+  <div className="flex gap-1" aria-label={`Rating: ${rating} out of 5`}>
     {[...Array(5)].map((_, i) => (
       <Star
         key={i}
-        size={14}
+        size={16}
         aria-hidden="true"
         className={
           i < rating
@@ -67,7 +67,7 @@ const FeedbackSection = ({ reviews }: FeedbackSectionProps) => {
     if (!isAutoPlaying || displayReviews.length <= 1) return;
     const timer = setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % displayReviews.length);
-    }, 6000);
+    }, 8000);
     return () => clearInterval(timer);
   }, [isAutoPlaying, displayReviews.length]);
 
@@ -77,13 +77,14 @@ const FeedbackSection = ({ reviews }: FeedbackSectionProps) => {
       const total = displayReviews.length;
       return ((prev + next) % total + total) % total;
     });
-    setTimeout(() => setIsAutoPlaying(true), 12000);
+    setTimeout(() => setIsAutoPlaying(true), 15000);
   };
 
   if (displayReviews.length === 0) return <EmptyState />;
 
   const current = displayReviews[activeIndex];
   const featuredCount = displayReviews.filter((r) => r.featured).length;
+  const avgRating = (displayReviews.reduce((s, r) => s + r.rating, 0) / displayReviews.length).toFixed(1);
 
   return (
     <section
@@ -115,116 +116,123 @@ const FeedbackSection = ({ reviews }: FeedbackSectionProps) => {
           </p>
         </motion.div>
 
-        {/* Stats strip */}
+        {/* Stats strip - Improved */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="flex flex-wrap justify-center gap-6 mb-14"
+          className="flex flex-wrap justify-center gap-4 mb-12"
         >
-          {[
-            { value: `${displayReviews.length}+`, label: 'Reviews' },
-            { value: featuredCount > 0 ? `${featuredCount}` : '—', label: 'Featured' },
-            {
-              value: displayReviews.length > 0
-                ? `${(
-                    displayReviews.reduce((s, r) => s + r.rating, 0) /
-                    displayReviews.length
-                  ).toFixed(1)}`
-                : '—',
-              label: 'Avg Rating',
-            },
-          ].map(({ value, label }) => (
-            <div
-              key={label}
-              className="glass px-6 py-3 rounded-xl text-center"
-            >
-              <div className="font-display text-xl font-bold text-white">{value}</div>
-              <div className="text-xs text-[#687081] font-mono uppercase tracking-wider mt-0.5">{label}</div>
-            </div>
-          ))}
+          <div className="glass px-6 py-3 rounded-xl text-center min-w-[100px]">
+            <div className="font-display text-2xl font-bold text-white">{displayReviews.length}+</div>
+            <div className="text-xs text-[#687081] font-mono uppercase tracking-wider mt-0.5">Reviews</div>
+          </div>
+          <div className="glass px-6 py-3 rounded-xl text-center min-w-[100px]">
+            <div className="font-display text-2xl font-bold text-white">{featuredCount > 0 ? featuredCount : '—'}</div>
+            <div className="text-xs text-[#687081] font-mono uppercase tracking-wider mt-0.5">Featured</div>
+          </div>
+          <div className="glass px-6 py-3 rounded-xl text-center min-w-[100px]">
+            <div className="font-display text-2xl font-bold text-white">{avgRating}</div>
+            <div className="text-xs text-[#687081] font-mono uppercase tracking-wider mt-0.5">Avg Rating</div>
+          </div>
         </motion.div>
 
         {/* Carousel */}
-        <div className="max-w-3xl mx-auto relative">
-          {/* Arrows */}
+        <div className="max-w-4xl mx-auto relative px-4 md:px-12">
+          {/* Navigation Arrows - Better positioned */}
           {displayReviews.length > 1 && (
             <>
               <button
                 onClick={() => pauseAndGo(-1)}
                 aria-label="Previous testimonial"
-                className="absolute -left-5 md:-left-14 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full glass border border-white/8 flex items-center justify-center text-[#687081] hover:text-white hover:border-white/20 transition-all"
+                className="hidden md:flex absolute -left-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full glass border border-white/8 items-center justify-center text-[#687081] hover:text-white hover:border-white/20 transition-all"
               >
                 <ChevronLeft className="w-5 h-5" aria-hidden="true" />
               </button>
               <button
                 onClick={() => pauseAndGo(1)}
                 aria-label="Next testimonial"
-                className="absolute -right-5 md:-right-14 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full glass border border-white/8 flex items-center justify-center text-[#687081] hover:text-white hover:border-white/20 transition-all"
+                className="hidden md:flex absolute -right-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full glass border border-white/8 items-center justify-center text-[#687081] hover:text-white hover:border-white/20 transition-all"
               >
                 <ChevronRight className="w-5 h-5" aria-hidden="true" />
               </button>
             </>
           )}
 
-          {/* Card */}
+          {/* Card - Improved spacing */}
           <AnimatePresence mode="wait">
             <motion.div
               key={activeIndex}
               initial={{ opacity: 0, x: 24 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -24 }}
-              transition={{ duration: 0.3 }}
-              className="glass rounded-2xl p-8 md:p-12 relative overflow-hidden"
+              transition={{ duration: 0.4 }}
+              className="glass rounded-2xl p-6 sm:p-8 md:p-10 relative overflow-hidden"
               aria-live="polite"
               aria-atomic="true"
             >
-              {/* Large quote mark decoration */}
+              {/* Decorative quote marks - repositioned */}
               <Quote
-                className="absolute top-6 right-8 w-16 h-16 text-[#7c6af7]/8 rotate-180"
+                className="absolute top-8 right-8 w-20 h-20 text-[#7c6af7]/6 rotate-180"
+                aria-hidden="true"
+              />
+              <Quote
+                className="absolute bottom-8 left-8 w-16 h-16 text-[#3ecfb3]/6"
                 aria-hidden="true"
               />
 
               <div className="relative z-10">
-                {/* Rating + type */}
-                <div className="flex items-center justify-between mb-6">
+                {/* Rating and tags row */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
                   <StarRating rating={current.rating} />
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     {current.featured && (
-                      <span className="text-xs font-mono px-2.5 py-1 rounded-full border border-amber-500/25 text-amber-400 bg-amber-500/8">
-                        Featured
+                      <span className="text-xs font-mono px-3 py-1.5 rounded-full border border-amber-500/25 text-amber-400 bg-amber-500/8">
+                        ⭐ Featured
                       </span>
                     )}
-                    <span className="text-xs font-mono px-2.5 py-1 rounded-full border border-[rgba(124,106,247,0.2)] text-[#7c6af7] bg-[rgba(124,106,247,0.06)]">
+                    <span className="text-xs font-mono px-3 py-1.5 rounded-full border border-[rgba(124,106,247,0.2)] text-[#7c6af7] bg-[rgba(124,106,247,0.06)]">
                       {current.projectType}
                     </span>
                   </div>
                 </div>
 
-                {/* Quote text */}
+                {/* Quote text - Improved readability */}
                 <blockquote className="mb-8">
-                  <p className="text-base md:text-lg text-white/85 leading-relaxed font-light italic">
-                    &ldquo;{current.text}&rdquo;
+                  <p className="text-base sm:text-lg md:text-xl text-white/90 leading-relaxed font-light italic tracking-wide">
+                    “{current.text}”
                   </p>
                 </blockquote>
 
-                {/* Author */}
-                <div className="pt-6 border-t border-white/6">
-                  <p className="font-display font-semibold text-white">{current.name}</p>
-                  <p className="text-sm text-[#7c6af7] mt-0.5">{current.position}</p>
-                  {current.company && (
-                    <p className="text-sm text-[#687081] mt-0.5">{current.company}</p>
-                  )}
+                {/* Divider */}
+                <div className="w-12 h-px bg-gradient-to-r from-[#7c6af7] to-transparent mb-6" />
+
+                {/* Author info - Better organized */}
+                <div className="space-y-2">
+                  <div>
+                    <p className="font-display font-semibold text-white text-lg">
+                      {current.name}
+                    </p>
+                    <p className="text-sm text-[#7c6af7] mt-0.5 font-medium">
+                      {current.position}
+                    </p>
+                    {current.company && (
+                      <p className="text-sm text-[#687081] mt-1">
+                        {current.company}
+                      </p>
+                    )}
+                  </div>
+
                   {current.websiteUrl && (
                     <a
                       href={current.websiteUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={`View ${current.name}'s project`}
-                      className="inline-flex items-center gap-1.5 mt-3 text-xs font-mono text-[#687081] hover:text-white transition-colors"
+                      className="inline-flex items-center gap-2 mt-3 text-sm font-mono text-[#3ecfb3] hover:text-white transition-colors group"
                     >
-                      <ExternalLink className="w-3 h-3" aria-hidden="true" />
+                      <ExternalLink className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
                       View Project
                     </a>
                   )}
@@ -233,10 +241,10 @@ const FeedbackSection = ({ reviews }: FeedbackSectionProps) => {
             </motion.div>
           </AnimatePresence>
 
-          {/* Indicators */}
+          {/* Pagination Dots */}
           {displayReviews.length > 1 && (
             <div
-              className="flex justify-center gap-1.5 mt-8"
+              className="flex justify-center gap-2 mt-8"
               role="tablist"
               aria-label="Testimonial navigation"
             >
@@ -249,15 +257,34 @@ const FeedbackSection = ({ reviews }: FeedbackSectionProps) => {
                   onClick={() => {
                     setIsAutoPlaying(false);
                     setActiveIndex(i);
-                    setTimeout(() => setIsAutoPlaying(true), 12000);
+                    setTimeout(() => setIsAutoPlaying(true), 15000);
                   }}
-                  className={`rounded-full transition-all duration-300 ${
-                    i === activeIndex
-                      ? 'w-6 h-1.5 bg-[#7c6af7]'
-                      : 'w-1.5 h-1.5 bg-[#3d4452] hover:bg-[#687081]'
-                  }`}
+                  className={`rounded-full transition-all duration-300 ${i === activeIndex
+                      ? 'w-8 h-2 bg-gradient-to-r from-[#7c6af7] to-[#3ecfb3]'
+                      : 'w-2 h-2 bg-[#3d4452] hover:bg-[#687081]'
+                    }`}
                 />
               ))}
+            </div>
+          )}
+
+          {/* Mobile arrows - visible on small screens */}
+          {displayReviews.length > 1 && (
+            <div className="flex justify-center gap-4 mt-6 md:hidden">
+              <button
+                onClick={() => pauseAndGo(-1)}
+                aria-label="Previous testimonial"
+                className="w-10 h-10 rounded-full glass border border-white/8 flex items-center justify-center text-[#687081] hover:text-white hover:border-white/20 transition-all"
+              >
+                <ChevronLeft className="w-5 h-5" aria-hidden="true" />
+              </button>
+              <button
+                onClick={() => pauseAndGo(1)}
+                aria-label="Next testimonial"
+                className="w-10 h-10 rounded-full glass border border-white/8 flex items-center justify-center text-[#687081] hover:text-white hover:border-white/20 transition-all"
+              >
+                <ChevronRight className="w-5 h-5" aria-hidden="true" />
+              </button>
             </div>
           )}
         </div>
