@@ -11,6 +11,7 @@ interface BlogPost {
   readTime: string;
   image: string;
   tags: string[];
+  slug?: string;
 }
 
 interface BlogModalProps {
@@ -39,9 +40,10 @@ const BlogModal = ({ post, onClose }: BlogModalProps) => {
   }, [onClose]);
 
   const handleCopyLink = async () => {
-    // Use the direct URL (without hash) for sharing
-    const shareUrl = `${window.location.origin}/blog/${post._id}`;
-    
+    // Use slug if available (better for SEO), otherwise use ID
+    const identifier = post.slug || post._id;
+    const shareUrl = `${window.location.origin}/blog/${identifier}`;
+
     try {
       await navigator.clipboard.writeText(shareUrl);
       setIsCopied(true);
@@ -83,7 +85,7 @@ const BlogModal = ({ post, onClose }: BlogModalProps) => {
               <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
               <span className="hidden sm:inline">Back to Portfolio</span>
             </button>
-            
+
             <div className="flex items-center gap-3">
               <button
                 onClick={handleCopyLink}
@@ -102,7 +104,7 @@ const BlogModal = ({ post, onClose }: BlogModalProps) => {
                   </>
                 )}
               </button>
-              
+
               <button
                 onClick={onClose}
                 className="p-2 rounded-lg hover:bg-[#2d3748] transition-colors text-muted-foreground hover:text-foreground"
@@ -132,7 +134,7 @@ const BlogModal = ({ post, onClose }: BlogModalProps) => {
                 className="flex flex-wrap justify-center gap-2 mb-6 px-2"
               >
                 {post.tags.map(tag => (
-                  <span 
+                  <span
                     key={tag}
                     className="text-xs sm:text-sm bg-primary/20 text-primary px-3 py-1.5 rounded-full border border-primary/30 whitespace-nowrap"
                   >
@@ -140,7 +142,7 @@ const BlogModal = ({ post, onClose }: BlogModalProps) => {
                   </span>
                 ))}
               </motion.div>
-              
+
               <motion.h1
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -149,7 +151,7 @@ const BlogModal = ({ post, onClose }: BlogModalProps) => {
               >
                 {post.title}
               </motion.h1>
-              
+
               <motion.p
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -158,7 +160,7 @@ const BlogModal = ({ post, onClose }: BlogModalProps) => {
               >
                 {post.excerpt}
               </motion.p>
-              
+
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -188,8 +190,8 @@ const BlogModal = ({ post, onClose }: BlogModalProps) => {
               transition={{ delay: 0.7 }}
               className="mb-12 rounded-2xl overflow-hidden mx-4 sm:mx-0"
             >
-              <img 
-                src={post.image} 
+              <img
+                src={post.image}
                 alt={post.title}
                 className="w-full h-auto max-h-96 object-cover"
               />

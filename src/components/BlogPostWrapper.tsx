@@ -1,6 +1,6 @@
 // components/BlogPostWrapper.tsx
 import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react"; 
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BlogModal from "@/components/BlogModal";
 import { BlogPost } from "@/components/BlogCard";
@@ -8,18 +8,18 @@ import { BlogPost } from "@/components/BlogCard";
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const BlogPostWrapper = () => {
-  const { slug } = useParams<{ slug: string }>(); 
+  const { id } = useParams<{ id: string }>(); // Changed from slug to id
   const navigate = useNavigate();
-  const [post, setPost] = useState<BlogPost| null>(null);
+  const [post, setPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        // Fetch by slug instead of ID
-        const response = await fetch(`${API_URL}/api/blog/${slug}`);
+        // Fetch by ID
+        const response = await fetch(`${API_URL}/api/blog/${id}`);
         if (!response.ok) throw new Error('Post not found');
-        
+
         const postData = await response.json();
         setPost(postData);
       } catch (error) {
@@ -29,19 +29,18 @@ const BlogPostWrapper = () => {
       }
     };
 
-    if (slug) {
+    if (id) {
       fetchPost();
     }
-  }, [slug]);
+  }, [id]);
 
   const handleClose = () => {
-    // Go back to homepage and scroll to blog section
     navigate('/', { state: { scrollToBlog: true } });
   };
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <div className="flex justify-center items-center min-h-screen bg-background">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
@@ -49,9 +48,9 @@ const BlogPostWrapper = () => {
 
   if (!post) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <div className="flex justify-center items-center min-h-screen bg-background">
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Blog Post Not Found</h2>
+          <h2 className="text-2xl font-bold text-white mb-4">Blog Post Not Found</h2>
           <button
             onClick={() => navigate('/')}
             className="px-4 py-2 bg-primary text-white rounded-lg"
