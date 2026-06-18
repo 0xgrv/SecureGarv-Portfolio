@@ -667,10 +667,16 @@
   background: rgba(62,207,179,0.06);
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .exp-chronicle {
     grid-template-columns: 1fr;
     gap: 12px;
+  }
+}
+@media (min-width: 769px) and (max-width: 1024px) {
+  .exp-chronicle {
+    grid-template-columns: 120px 1fr;
+    gap: 20px;
   }
 }
 

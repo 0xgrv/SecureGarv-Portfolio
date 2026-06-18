@@ -305,7 +305,7 @@ const Index = () => {
           className="relative min-h-screen flex items-center pt-24 pb-16 overflow-hidden"
         >
           <div className="container mx-auto px-4">
-            <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="grid lg:grid-cols-2 gap-10 lg:gap-12 xl:gap-16 items-center">
               {/* Text column */}
               <div>
                 <motion.p
@@ -432,10 +432,9 @@ const Index = () => {
                   <img
                     src="/hero.png"
                     alt="Garv Kamra — Security Analyst and Poet"
-                    width={340}
-                    height={400}
-                    className="rounded-[20px] object-cover block"
-                    style={{ width: 320, height: 380 }}
+                    width={320}
+                    height={380}
+                    className="rounded-[20px] object-cover block w-[280px] h-[340px] lg:w-[320px] lg:h-[380px]"
                     loading="eager"
                   />
                 </div>
@@ -450,7 +449,7 @@ const Index = () => {
         <section
           id="about"
           aria-labelledby="about-heading"
-          className="py-24 relative z-10"
+          className="py-16 lg:py-24 relative z-10"
         >
           <div className="container mx-auto px-4">
             <SectionHeader
@@ -618,7 +617,7 @@ const Index = () => {
         <section
           id="education"
           aria-labelledby="education-heading"
-          className="py-24 relative z-10"
+          className="py-16 lg:py-24 relative z-10"
           style={{ background: 'rgba(124,106,247,0.02)' }}
         >
           <div className="container mx-auto px-4">
@@ -745,7 +744,7 @@ const Index = () => {
         <section
           id="projects"
           aria-labelledby="projects-heading"
-          className="py-24 relative z-10"
+          className="py-16 lg:py-24 relative z-10"
         >
           <div className="container mx-auto px-4">
             <SectionHeader
@@ -795,7 +794,7 @@ const Index = () => {
         <section
           id="experience"
           aria-labelledby="experience-heading"
-          className="py-24 relative z-10"
+          className="py-16 lg:py-24 relative z-10"
           style={{ background: 'rgba(124,106,247,0.02)' }}
         >
           <div className="container mx-auto px-4">
@@ -1175,7 +1174,7 @@ const Index = () => {
         <section
           id="contact"
           aria-labelledby="contact-heading"
-          className="py-24 relative z-10"
+          className="py-16 lg:py-24 relative z-10"
         >
           <div className="container mx-auto px-4">
             <SectionHeader
