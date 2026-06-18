@@ -814,21 +814,45 @@ const Index = () => {
               <p className="text-center text-[#687081] py-10">No experience entries yet.</p>
             ) : (
               <div className="max-w-3xl mx-auto">
-                {experiences.map((exp) => (
-                  <ExperienceCard
-                    key={exp._id}
-                    _id={exp._id}
-                    company={exp.company}
-                    position={exp.position}
-                    location={exp.location}
-                    startDate={exp.startDate}
-                    endDate={exp.endDate}
-                    description={exp.description}
-                    achievements={exp.achievements}
-                    technologies={exp.technologies}
-                    isCurrentJob={exp.isCurrentJob}
-                  />
-                ))}
+                {/* Sort experiences - latest on top */}
+                {[...experiences]
+                  .sort((a, b) => {
+                    // Current jobs come first
+                    if (a.isCurrentJob && !b.isCurrentJob) return -1;
+                    if (!a.isCurrentJob && b.isCurrentJob) return 1;
+
+                    // Then sort by start date (latest first)
+                    // Convert date strings like "Mar 2024" or "2024-03" to Date objects
+                    const parseDate = (dateStr: string) => {
+                      if (!dateStr) return new Date(0);
+                      // Try parsing as "MMM YYYY" (e.g., "Mar 2024")
+                      const parsed = new Date(dateStr);
+                      if (!isNaN(parsed.getTime())) return parsed;
+                      // Try parsing as "YYYY-MM" (e.g., "2024-03")
+                      const [year, month] = dateStr.split('-');
+                      if (year && month) return new Date(parseInt(year), parseInt(month) - 1);
+                      return new Date(0);
+                    };
+
+                    const dateA = parseDate(a.startDate);
+                    const dateB = parseDate(b.startDate);
+                    return dateB.getTime() - dateA.getTime();
+                  })
+                  .map((exp) => (
+                    <ExperienceCard
+                      key={exp._id}
+                      _id={exp._id}
+                      company={exp.company}
+                      position={exp.position}
+                      location={exp.location}
+                      startDate={exp.startDate}
+                      endDate={exp.endDate}
+                      description={exp.description}
+                      achievements={exp.achievements}
+                      technologies={exp.technologies}
+                      isCurrentJob={exp.isCurrentJob}
+                    />
+                  ))}
               </div>
             )}
           </div>
