@@ -315,7 +315,7 @@ const Index = () => {
                   variants={fadeUp}
                   className="font-mono text-xs tracking-[4px] uppercase text-[#3ecfb3] mb-6"
                 >
-                  Security Analyst · VAPT · Writer
+                  Cybersecurity · VAPT · Writer
                 </motion.p>
 
                 <motion.h1
@@ -431,7 +431,7 @@ const Index = () => {
                 >
                   <img
                     src="/hero.png"
-                    alt="Garv Kamra — Security Analyst and Poet"
+                    alt="Garv Kamra — Associate Consultant and Poet"
                     width={320}
                     height={380}
                     className="rounded-[20px] object-cover block w-[280px] h-[340px] lg:w-[320px] lg:h-[380px]"
@@ -1324,21 +1324,21 @@ const Index = () => {
                         href={href}
                         aria-label={sublabel ? `${label} — ${sublabel}` : label}
                         {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                        className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/4 transition-colors group"
+                        className="flex items-center gap-4 p-4 rounded-xl hover:bg-white/4 transition-colors group"
                       >
                         <div
-                          className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+                          className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
                           style={{ background: 'rgba(124,106,247,0.1)', border: '1px solid rgba(124,106,247,0.18)' }}
                           aria-hidden="true"
                         >
                           <Icon className="w-4 h-4 text-[#7c6af7]" />
                         </div>
-                        <div>
-                          <p className="text-sm text-white group-hover:text-[#7c6af7] transition-colors">
+                        <div className="flex flex-col gap-1">
+                          <p className="text-sm text-white group-hover:text-[#7c6af7] transition-colors leading-snug">
                             {label}
                           </p>
                           {sublabel && (
-                            <p className="text-xs text-[#3d4452] font-mono">{sublabel}</p>
+                            <p className="text-xs text-[#687081] font-mono">{sublabel}</p>
                           )}
                         </div>
                       </a>
@@ -1389,7 +1389,7 @@ const Index = () => {
                 <span className="text-[#7c6af7]">.</span>SecureGarv
               </p>
               <p className="text-sm text-[#687081] leading-relaxed mb-5 max-w-xs">
-                Security Analyst · VAPT · Poet <br />
+                Cybersecurity · VAPT · Poet <br />
                 Volunteering
               </p>
               <div className="flex items-center gap-2">
@@ -1451,7 +1451,6 @@ const Index = () => {
               <ul className="space-y-2">
                 {[
                   { icon: Terminal, text: 'Learning Red Teaming' },
-                  { icon: Cpu, text: 'Hardware Security Research' },
                   { icon: BookOpen, text: 'Writing & Publishing' },
                   { icon: Globe, text: 'Volunteering @ SecurityBoat Community' },
                 ].map(({ icon: Icon, text }) => (

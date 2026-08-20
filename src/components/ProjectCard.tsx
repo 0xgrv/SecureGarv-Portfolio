@@ -75,14 +75,6 @@ const ProjectCard = ({
           }}
         />
         <div className="project-card-overlay" aria-hidden="true" />
-        <div className="project-card-overlay-hover" aria-hidden="true">
-          <span
-            className="px-5 py-2 rounded-lg font-display font-semibold text-sm text-white"
-            style={{ background: textColor }}
-          >
-            View Project
-          </span>
-        </div>
 
         {/* Category badge */}
         <div

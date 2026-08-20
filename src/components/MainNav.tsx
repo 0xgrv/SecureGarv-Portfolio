@@ -67,20 +67,20 @@ const MainNav = () => {
                 boxShadow: '0 0 6px rgba(62,207,179,0.6)',
               }}
             />
-            Open to Projects
+            Open to Opportunities
           </div>
 
           {/* Mobile — compact dot WITH TOOLTIP */}
           <div className="sm:hidden relative group">
             <span
-              aria-label="Available for projects"
+              aria-label="Available for opportunities"
               className="block w-2.5 h-2.5 rounded-full bg-[#3ecfb3] cursor-help"
               style={{ boxShadow: '0 0 8px rgba(62,207,179,0.7)' }}
             />
             {/* Tooltip - positioned to the right */}
             <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none z-50 whitespace-nowrap">
               <div className="bg-black/90 backdrop-blur-md text-white text-xs py-1.5 px-3 rounded-lg border border-white/20 shadow-lg">
-                Available for Projects
+                Available for Opportunities
                 <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 bg-black/90 border-l border-t border-white/20"></div>
               </div>
             </div>
